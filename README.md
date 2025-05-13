@@ -218,10 +218,6 @@ yarn test:coverage
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 📫 Contato
-
-Equipe Conexão Saudável - [contato@conexaosaudavel.com.br](mailto:macedo270701@gmail.com
-
 ## 🙏 Agradecimentos
 
 - Todos os contribuidores que dedicaram seu tempo ao projeto
