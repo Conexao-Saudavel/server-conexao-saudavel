@@ -8,11 +8,8 @@ package-lock.json
 
 # Ambiente
 .env
-.env.local
-.env.*.local
-.env.development
-.env.test
-.env.production
+.env.*
+!.env.example
 
 # Logs
 logs/
@@ -41,8 +38,9 @@ Thumbs.db
 # Arquivos temporários
 tmp/
 temp/
-.tmp/
-.temp/
+uploads/
+reports/
+pdfs/
 
 # Arquivos de cache
 .cache/
