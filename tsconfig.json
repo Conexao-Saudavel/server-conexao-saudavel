@@ -1,0 +1,89 @@
+{
+  "compilerOptions": {
+    // Versão do ECMAScript e módulos
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Configurações de tipagem
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    // Suporte a decorators (necessário para TypeORM)
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    // Configurações de build
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "removeComments": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+
+    // Path aliases para imports mais limpos
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@config/*": ["src/config/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@middlewares/*": ["src/middlewares/*"],
+      "@models/*": ["src/models/*"],
+      "@repositories/*": ["src/repositories/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"],
+      "@validations/*": ["src/validations/*"],
+      "@errors/*": ["src/errors/*"],
+      "@types/*": ["src/types/*"]
+    },
+
+    // Configurações de resolução de módulos
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": true,
+
+    // Configurações de segurança
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true
+  },
+
+  // Arquivos e diretórios incluídos/excluídos
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json",
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.e2e-spec.ts",
+    "**/*.e2e-test.ts"
+  ],
+
+  // Referências a projetos
+  "references": [
+    { "path": "./tsconfig.build.json" }
+  ]
+} 
