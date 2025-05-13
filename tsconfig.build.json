@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Configurações específicas para build
+    "noEmit": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "removeComments": true,
+    "outDir": "./dist"
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.e2e-spec.ts",
+    "**/*.e2e-test.ts",
+    "jest.config.ts",
+    "jest.*.config.ts"
+  ]
+} 
