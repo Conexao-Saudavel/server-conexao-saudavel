@@ -2,11 +2,12 @@
   "name": "conexao-saudavel-server",
   "version": "2.0.0",
   "description": "Backend do projeto Conexão Saudável - Sistema de monitoramento e gestão do uso saudável de dispositivos móveis",
+  "type": "module",
   "main": "dist/app.js",
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app.ts",
-    "build": "tsc",
+    "dev": "ts-node-dev --project tsconfig.json --respawn --transpile-only --ignore-watch node_modules src/app.ts",
+    "build": "tsc --project tsconfig.build.json",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -16,13 +17,13 @@
     "test:e2e": "jest --config jest.e2e.config.js",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/database.ts",
-    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/database.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/database.ts",
-    "seed": "ts-node src/scripts/seed.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/database.ts --project tsconfig.build.json",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/database.ts --project tsconfig.build.json",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/database.ts --project tsconfig.build.json",
+    "seed": "ts-node --project tsconfig.build.json src/scripts/seed.ts",
     "prepare": "husky install",
     "commit": "git-cz",
-    "docs:generate": "typedoc --out docs/api src",
+    "docs:generate": "typedoc --out docs/api src --project tsconfig.build.json",
     "docs:serve": "serve docs/api"
   },
   "keywords": [
@@ -42,11 +43,16 @@
   "dependencies": {
     "@sentry/node": "^7.100.1",
     "@types/bull": "^4.10.0",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.11.24",
+    "@types/winston": "^2.4.4",
     "bcryptjs": "^2.4.3",
     "bull": "^4.12.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "compression": "^1.7.4",
+    "conexao-saudavel-server": "file:",
     "cors": "^2.8.5",
     "date-fns": "^3.3.1",
     "dotenv": "^16.4.1",
@@ -66,11 +72,7 @@
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
     "winston-daily-rotate-file": "^4.7.1",
-    "zod": "^3.22.4",
-    "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.5",
-    "@types/node": "^20.11.24",
-    "@types/winston": "^2.4.4"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.4",
@@ -80,7 +82,6 @@
     "@types/cors": "^2.8.17",
     "@types/jest": "^29.5.11",
     "@types/multer": "^1.4.11",
-    "@types/path": "^0.12.0",
     "@types/pg": "^8.11.0",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.8",
@@ -145,4 +146,4 @@
       }
     }
   }
-} 
+}
