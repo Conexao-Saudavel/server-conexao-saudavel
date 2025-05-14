@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { env } from '../config/env';
+import { env } from '../config/env.js';
 
 // Formato personalizado para logs
 const customFormat = winston.format.combine(
