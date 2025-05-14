@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env.js';
-import { UnauthorizedError, ForbiddenError } from '../errors/BaseError.js';
+import config from '../config/env.js';
+import { UnauthorizedError, ForbiddenError } from '../errors/index.js';
 import { logger } from '../utils/logger.js';
 
 // Tipagem para o payload do JWT
@@ -47,7 +47,7 @@ export const authMiddleware = async (
 
     try {
       // Verifica e decodifica o token
-      const decoded = jwt.verify(token, env.JWT_SECRET) as JWTPayload;
+      const decoded = jwt.verify(token, config.JWT_SECRET) as JWTPayload;
 
       // Validações adicionais do payload
       if (!decoded.id || !decoded.institution_id || !decoded.user_type) {
@@ -63,7 +63,7 @@ export const authMiddleware = async (
       req.user = decoded;
 
       // Log de sucesso (apenas em desenvolvimento)
-      if (env.NODE_ENV === 'development') {
+      if (config.NODE_ENV === 'development') {
         logger.debug('Autenticação bem-sucedida', {
           userId: decoded.id,
           userType: decoded.user_type,
