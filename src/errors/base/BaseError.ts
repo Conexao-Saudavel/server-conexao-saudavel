@@ -1,7 +1,3 @@
-/**
- * Classe base para todos os erros da aplicação
- * Fornece uma estrutura comum para todos os erros customizados
- */
 export abstract class BaseError extends Error {
   public readonly statusCode: number;
   public readonly details?: any;
