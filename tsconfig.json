@@ -1,14 +1,23 @@
 {
   "compilerOptions": {
-    // Versão do ECMAScript e módulos
+    /* Linguagem e alvo */
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve", // útil se usar React; remova se não for necessário
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
-    // Configurações de tipagem
+    /* Diretórios */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    /* Checagens estritas */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -17,61 +26,35 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+
+    /* Qualidade do código */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noPropertyAccessFromIndexSignature": true,
 
-    // Suporte a decorators (necessário para TypeORM)
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    /* Módulos e interoperabilidade */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
 
-    // Configurações de build
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "removeComments": true,
+    /* Build */
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "removeComments": true,
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
 
-    // Path aliases para imports mais limpos
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@config/*": ["src/config/*"],
-      "@controllers/*": ["src/controllers/*"],
-      "@middlewares/*": ["src/middlewares/*"],
-      "@models/*": ["src/models/*"],
-      "@repositories/*": ["src/repositories/*"],
-      "@services/*": ["src/services/*"],
-      "@utils/*": ["src/utils/*"],
-      "@validations/*": ["src/validations/*"],
-      "@errors/*": ["src/errors/*"],
-      "@types/*": ["src/types/*"]
-    },
-
-    // Configurações de resolução de módulos
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "preserveSymlinks": true,
-
-    // Configurações de segurança
+    /* Segurança */
     "noEmitOnError": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true
+    "skipLibCheck": true
   },
 
-  // Arquivos e diretórios incluídos/excluídos
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json",
-    "src/**/*.d.ts"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "dist",
@@ -80,10 +63,5 @@
     "**/*.test.ts",
     "**/*.e2e-spec.ts",
     "**/*.e2e-test.ts"
-  ],
-
-  // Referências a projetos
-  "references": [
-    { "path": "./tsconfig.build.json" }
   ]
-} 
+}
