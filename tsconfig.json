@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     /* Linguagem e alvo */
-    "target": "ES2022",
+    "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
@@ -14,7 +14,7 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "*": ["node_modules/*"]
     },
 
     /* Checagens estritas */
@@ -55,13 +55,5 @@
   },
 
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.e2e-spec.ts",
-    "**/*.e2e-test.ts"
-  ]
+  "exclude": ["node_modules", "dist"]
 }
