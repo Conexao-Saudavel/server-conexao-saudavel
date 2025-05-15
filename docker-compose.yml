@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_DATABASE:-conexao_saudavel}
+      POSTGRES_DB: ${DB_DATABASE:-conexao_saudavel_dev}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -14,21 +14,21 @@ services:
     networks:
       - conexao-saudavel-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-conexao_saudavel}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-conexao_saudavel_dev}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  redis: # <-- This line defines the redis service
-    image: redis:alpine # Usar uma imagem oficial do Redis
-    container_name: conexao-saudavel-redis # Um nome para o container
+  redis:
+    image: redis:alpine
+    container_name: conexao-saudavel-redis
     ports:
-      - "${REDIS_PORT:-6379}:6379" # Mapear a porta do Redis (padrão 6379)
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - redis_data:/data # Manter os dados do Redis persistentes
+      - redis_data:/data
     networks:
-      - conexao-saudavel-network # Conectar à mesma rede dos outros serviços
-    healthcheck: # Opcional: verificar a saúde do serviço Redis
+      - conexao-saudavel-network
+    healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
@@ -41,7 +41,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@conexaosaudavel.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
     ports:
-      - "${PGADMIN_PORT:-5050}:80" # Corrected port mapping for pgAdmin
+      - "${PGADMIN_PORT:-5050}:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
@@ -49,10 +49,37 @@ services:
     depends_on:
       - postgres
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: conexao-saudavel-app
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=conexao-saudavel-db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=conexao_saudavel_dev
+      - REDIS_HOST=conexao-saudavel-redis
+      - REDIS_PORT=6379
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - conexao-saudavel-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   pgadmin_data:
-  redis_data: # Adicionar volume para dados do Redis
+  redis_data:
 
 networks:
   conexao-saudavel-network:

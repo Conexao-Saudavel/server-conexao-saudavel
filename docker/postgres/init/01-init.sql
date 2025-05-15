@@ -9,8 +9,8 @@ CREATE SCHEMA IF NOT EXISTS conexao_saudavel;
 SET search_path TO conexao_saudavel, public;
 
 -- Criar tipos enumerados
-CREATE TYPE user_type AS ENUM ('adolescente', 'paciente', 'membro_instituicao', 'admin');
-CREATE TYPE gender_type AS ENUM ('masculino', 'feminino', 'outro', 'prefiro_nao_informar');
+CREATE TYPE user_type AS ENUM ('adolescente', 'responsavel', 'profissional');
+CREATE TYPE gender_type AS ENUM ('masculino', 'feminino', 'outro');
 CREATE TYPE app_category AS ENUM ('social', 'produtividade', 'entretenimento', 'educacao', 'outros');
 
 -- Criar tabelas
