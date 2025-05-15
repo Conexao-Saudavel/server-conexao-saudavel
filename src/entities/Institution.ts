@@ -6,46 +6,46 @@ export class Institution {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     name!: string;
 
-    @Column({ unique: true })
+    @Column({ type: "varchar", unique: true })
     cnpj!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     address!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     city!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     state!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     country!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     postal_code!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     phone!: string;
 
-    @Column({ unique: true })
+    @Column({ type: "varchar", unique: true })
     email!: string;
 
-    @Column({ default: true })
+    @Column({ type: "boolean", default: true })
     active: boolean = true;
 
     @Column({ type: 'jsonb', nullable: true })
     settings: Record<string, any> = {};
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: "timestamp" })
     created_at!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ type: "timestamp" })
     updated_at!: Date;
 
     // Relacionamentos
     @OneToMany(() => User, (user: User) => user.institution)
     users: User[] = [];
-} 
+}
