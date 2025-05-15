@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: conexao-saudavel-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_DATABASE:-conexao_saudavel}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - conexao-saudavel-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-conexao_saudavel}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis: # <-- This line defines the redis service
+    image: redis:alpine # Usar uma imagem oficial do Redis
+    container_name: conexao-saudavel-redis # Um nome para o container
+    ports:
+      - "${REDIS_PORT:-6379}:6379" # Mapear a porta do Redis (padrão 6379)
+    volumes:
+      - redis_data:/data # Manter os dados do Redis persistentes
+    networks:
+      - conexao-saudavel-network # Conectar à mesma rede dos outros serviços
+    healthcheck: # Opcional: verificar a saúde do serviço Redis
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: conexao-saudavel-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@conexaosaudavel.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80" # Corrected port mapping for pgAdmin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - conexao-saudavel-network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  redis_data: # Adicionar volume para dados do Redis
+
+networks:
+  conexao-saudavel-network:
+    driver: bridge
