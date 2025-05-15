@@ -1,23 +1,23 @@
 {
   "compilerOptions": {
-    /* Linguagem e alvo */
+    /* Language and target */
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    "jsx": "preserve", // útil se usar React; remova se não for necessário
+    "jsx": "preserve",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-
-    /* Diretórios */
+    
+    /* Directories */
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*"]
     },
-
-    /* Checagens estritas */
+    
+    /* Strict checks */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -26,21 +26,20 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-
-    /* Qualidade do código */
+    
+    /* Code quality */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-
-    /* Módulos e interoperabilidade */
+    
+    /* Modules and interoperability */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-
+    
     /* Build */
     "sourceMap": true,
     "declaration": true,
@@ -48,12 +47,11 @@
     "removeComments": true,
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-
-    /* Segurança */
+    
+    /* Security */
     "noEmitOnError": true,
     "skipLibCheck": true
   },
-
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
