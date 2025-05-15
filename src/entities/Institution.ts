@@ -47,5 +47,5 @@ export class Institution {
 
     // Relacionamentos
     @OneToMany(() => User, (user: User) => user.institution)
-    users: User[] = [];
+    users!: User[];
 }
