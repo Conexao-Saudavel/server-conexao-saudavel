@@ -21,8 +21,8 @@ import { DailySummary } from '../entities/DailySummary.js';
 export class UserRepository extends Repository<User> {
     private cacheService: CacheService;
 
-    constructor(connection: any) {
-        super(User, connection);
+    constructor() {
+        super(User, AppDataSource.manager);
         this.cacheService = new CacheService('user:');
     }
 

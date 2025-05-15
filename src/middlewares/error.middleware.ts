@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { BaseError, InternalServerError } from '../errors/index.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('error-handler');
 
 // Estender a interface Request para incluir o id
 declare global {
@@ -26,38 +28,55 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): void {
+  const requestId = req.id || 'unknown';
+  const errorContext = {
+    requestId,
+    path: req.path,
+    method: req.method,
+    query: req.query,
+    params: req.params,
+    body: req.body,
+    user: req.user,
+    ip: req.ip,
+    userAgent: req.get('user-agent')
+  };
+
   // Se for um erro conhecido (estendendo BaseError)
   if (error instanceof BaseError) {
     // Log apropriado baseado no status code
     if (error.statusCode >= 500) {
       logger.error(`[${error.code}] ${error.message}`, {
+        ...errorContext,
         stack: error.stack,
         details: error.details,
-        path: req.path,
-        method: req.method,
-        requestId: req.id
+        errorCode: error.code,
+        statusCode: error.statusCode
       });
     } else {
       logger.warn(`[${error.code}] ${error.message}`, {
+        ...errorContext,
         details: error.details,
-        path: req.path,
-        method: req.method,
-        requestId: req.id
+        errorCode: error.code,
+        statusCode: error.statusCode
       });
     }
 
     // Retorna o erro no formato padronizado
-    res.status(error.statusCode).json(error.toJSON());
+    res.status(error.statusCode).json({
+      ...error.toJSON(),
+      requestId
+    });
     return;
   }
 
   // Para erros não tratados/desconhecidos
   logger.error('[UnhandledError] Erro não tratado', {
-    error: error.message,
-    stack: error.stack,
-    path: req.path,
-    method: req.method,
-    requestId: req.id
+    ...errorContext,
+    error: {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    }
   });
 
   // Converte para erro interno do servidor
@@ -66,5 +85,8 @@ export function errorHandler(
   );
 
   // Retorna o erro no formato padronizado
-  res.status(internalError.statusCode).json(internalError.toJSON());
+  res.status(internalError.statusCode).json({
+    ...internalError.toJSON(),
+    requestId
+  });
 } 

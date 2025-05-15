@@ -7,6 +7,15 @@ import { authLimiter, registerLimiter, passwordResetLimiter } from '../middlewar
 const router = Router();
 const authController = new AuthController();
 
+// Bind all controller methods to maintain 'this' context
+const boundController = {
+    login: authController.login.bind(authController),
+    register: authController.register.bind(authController),
+    refreshToken: authController.refreshToken.bind(authController),
+    forgotPassword: authController.forgotPassword.bind(authController),
+    resetPassword: authController.resetPassword.bind(authController)
+};
+
 /**
  * @swagger
  * /auth/login:
@@ -20,43 +29,14 @@ const authController = new AuthController();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Email do usuário
- *               password:
- *                 type: string
- *                 format: password
- *                 description: Senha do usuário
+ *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
  *         description: Login realizado com sucesso
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       format: uuid
- *                     email:
- *                       type: string
- *                     full_name:
- *                       type: string
- *                     user_type:
- *                       $ref: '#/components/schemas/UserType'
- *                 access_token:
- *                   type: string
- *                 refresh_token:
- *                   type: string
+ *               $ref: '#/components/schemas/AuthResponse'
  *       401:
  *         description: Credenciais inválidas
  *         content:
@@ -68,7 +48,7 @@ router.post(
     '/login',
     authLimiter,
     validateSchema(authSchemas.login),
-    authController.login
+    boundController.login
 );
 
 /**
@@ -84,69 +64,22 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *               - username
- *               - password
- *               - full_name
- *               - date_of_birth
- *               - gender
- *               - institution_id
- *               - user_type
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               username:
- *                 type: string
- *                 minLength: 3
- *               password:
- *                 type: string
- *                 minLength: 6
- *               full_name:
- *                 type: string
- *               date_of_birth:
- *                 type: string
- *                 format: date
- *               gender:
- *                 $ref: '#/components/schemas/Gender'
- *               institution_id:
- *                 type: string
- *                 format: uuid
- *               user_type:
- *                 $ref: '#/components/schemas/UserType'
- *               settings:
- *                 type: object
- *                 description: Configurações opcionais do usuário
+ *             $ref: '#/components/schemas/RegisterRequest'
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       format: uuid
- *                     email:
- *                       type: string
- *                     username:
- *                       type: string
- *                     full_name:
- *                       type: string
- *                     user_type:
- *                       $ref: '#/components/schemas/UserType'
- *                 access_token:
- *                   type: string
- *                 refresh_token:
- *                   type: string
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
- *         description: Dados inválidos ou usuário já existe
+ *         description: Dados inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Muitas tentativas de registro
  *         content:
  *           application/json:
  *             schema:
@@ -156,7 +89,7 @@ router.post(
     '/register',
     registerLimiter,
     validateSchema(registerSchema),
-    authController.register.bind(authController)
+    boundController.register
 );
 
 /**
@@ -200,7 +133,7 @@ router.post(
 router.post(
     '/refresh-token',
     validateSchema(authSchemas.refreshToken),
-    authController.refreshToken
+    boundController.refreshToken
 );
 
 /**
@@ -245,7 +178,7 @@ router.post(
     '/forgot-password',
     authLimiter,
     validateSchema(authSchemas.forgotPassword),
-    authController.forgotPassword
+    boundController.forgotPassword
 );
 
 /**
@@ -293,7 +226,7 @@ router.post(
     '/reset-password',
     passwordResetLimiter,
     validateSchema(authSchemas.resetPassword),
-    authController.resetPassword
+    boundController.resetPassword
 );
 
 export default router; 

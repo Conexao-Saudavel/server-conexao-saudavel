@@ -2,7 +2,9 @@ import type { Request, Response, NextFunction } from 'express';
 import type { Schema } from 'joi';
 import Joi from 'joi';
 import { BadRequestError } from '../errors/index.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('validation-middleware');
 
 /**
  * Middleware factory que cria um middleware de validação para um schema Joi específico
@@ -17,6 +19,13 @@ export function validateSchema(schema: Schema, target: 'body' | 'query' | 'param
             const validationContext = {
                 requestId: res.locals.requestId
             };
+
+            logger.debug('Iniciando validação', {
+                path: req.path,
+                method: req.method,
+                target,
+                requestId: res.locals.requestId
+            });
 
             // Valida os dados usando o schema
             const { error, value } = schema.validate(req[target], {
@@ -34,11 +43,12 @@ export function validateSchema(schema: Schema, target: 'body' | 'query' | 'param
                 }));
 
                 // Log dos erros de validação
-                logger.warn('Validation error', {
+                logger.warn('Erro de validação', {
                     requestId: res.locals.requestId,
                     path: req.path,
                     method: req.method,
-                    errors: validationErrors
+                    errors: validationErrors,
+                    data: req[target]
                 });
 
                 throw new BadRequestError('Erro de validação', validationErrors);
@@ -47,6 +57,13 @@ export function validateSchema(schema: Schema, target: 'body' | 'query' | 'param
             // Substitui os dados originais pelos dados validados
             req[target] = value;
             
+            logger.debug('Validação concluída com sucesso', {
+                path: req.path,
+                method: req.method,
+                target,
+                requestId: res.locals.requestId
+            });
+
             next();
         } catch (error) {
             next(error);
