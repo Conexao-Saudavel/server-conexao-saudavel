@@ -249,10 +249,10 @@ export const registerSchema = Joi.object({
         }),
 
     gender: Joi.string()
-        .valid('M', 'F', 'O')
+        .valid('masculino', 'feminino', 'outro')
         .required()
         .messages({
-            'any.only': 'Gênero inválido. Use M (Masculino), F (Feminino) ou O (Outro)',
+            'any.only': 'Gênero inválido. Use masculino, feminino ou outro',
             'any.required': 'O gênero é obrigatório'
         }),
 
@@ -265,10 +265,16 @@ export const registerSchema = Joi.object({
         }),
 
     user_type: Joi.string()
-        .valid('admin', 'professional', 'patient')
+        .valid('adolescente', 'responsavel', 'profissional')
         .required()
         .messages({
-            'any.only': 'Tipo de usuário inválido',
+            'any.only': 'Tipo de usuário inválido. Use adolescente, responsavel ou profissional',
             'any.required': 'O tipo de usuário é obrigatório'
+        }),
+
+    settings: Joi.object()
+        .default({})
+        .messages({
+            'object.base': 'As configurações devem ser um objeto'
         })
 }); 
