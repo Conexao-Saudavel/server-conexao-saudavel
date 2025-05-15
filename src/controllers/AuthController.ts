@@ -1,317 +1,112 @@
-import type { Request, Response, NextFunction } from 'express';
-import { getCustomRepository } from 'typeorm';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import type { Request, Response } from 'express';
+import { AppDataSource } from '../data-source.js';
+import { User } from '../entities/User.js';
 import { UserRepository } from '../repositories/UserRepository.js';
-import { UnauthorizedError, BadRequestError } from '../errors/index.js';
-import { logger } from '../utils/logger.js';
-import * as config from '../config/env.js';
-
-interface LoginRequest {
-    email: string;
-    password: string;
-}
-
-interface TokenPayload {
-    id: string;
-    institution_id: string;
-    user_type: string;
-}
-
-interface RegisterRequest {
-    username: string;
-    email: string;
-    password: string;
-    confirm_password: string;
-    full_name: string;
-    date_of_birth: Date;
-    gender: 'M' | 'F' | 'O';
-    institution_id: string;
-    user_type: 'admin' | 'professional' | 'patient';
-}
+import { AuthService } from '../services/AuthService.js';
+import config from '../config/env.js';
 
 export class AuthController {
-    private userRepository = getCustomRepository(UserRepository);
+    private authService: AuthService;
+    private userRepository: UserRepository;
 
-    /**
-     * Autenticação de usuário
-     * @route POST /auth/login
-     */
-    async login(req: Request<{}, {}, LoginRequest>, res: Response, next: NextFunction): Promise<void> {
+    constructor() {
+        this.authService = new AuthService();
+        this.userRepository = AppDataSource.getRepository(User) as UserRepository;
+    }
+
+    async login(req: Request, res: Response) {
         try {
             const { email, password } = req.body;
-
-            // Buscar usuário pelo email
-            const user = await this.userRepository.findByEmail(email);
-            
-            if (!user) {
-                throw new UnauthorizedError('Credenciais inválidas');
-            }
-
-            // Verificar se o usuário está ativo
-            if (!user.active) {
-                throw new UnauthorizedError('Usuário inativo');
-            }
-
-            // Verificar senha
-            const isValidPassword = await bcrypt.compare(password, user.password_hash);
-            
-            if (!isValidPassword) {
-                // Log de tentativa de login inválida
-                logger.warn('Tentativa de login inválida', {
-                    email,
-                    requestId: res.locals.requestId
-                });
-                
-                throw new UnauthorizedError('Credenciais inválidas');
-            }
-
-            // Gerar tokens
-            const accessToken = this.generateAccessToken(user);
-            const refreshToken = this.generateRefreshToken(user);
-
-            // Log de login bem-sucedido
-            logger.info('Login realizado com sucesso', {
-                userId: user.id,
-                email: user.email,
-                userType: user.user_type,
-                requestId: res.locals.requestId
-            });
-
-            // Retornar tokens e informações básicas do usuário
-            res.json({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                token_type: 'Bearer',
-                expires_in: 3600, // 1 hora
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    full_name: user.full_name,
-                    user_type: user.user_type,
-                    institution_id: user.institution_id,
-                    onboarding_completed: user.onboarding_completed
-                }
-            });
+            const { tokens, user } = await this.authService.authenticate(email, password);
+            return res.json({ user, ...tokens });
         } catch (error) {
-            next(error);
+            console.error('Erro no login:', error);
+            return res.status(401).json({ 
+                error: 'Credenciais inválidas' 
+            });
         }
     }
 
-    /**
-     * Registro de novo usuário
-     * @route POST /auth/register
-     */
-    async register(req: Request<{}, {}, RegisterRequest>, res: Response, next: NextFunction): Promise<void> {
+    async register(req: Request, res: Response) {
         try {
-            const { password, confirm_password, ...userData } = req.body;
+            const { email, password, ...userData } = req.body;
 
-            // Hash da senha
-            const passwordHash = await bcrypt.hash(password, 10);
+            // Verifica se o email já está em uso
+            const existingUser = await this.userRepository.findByEmail(email);
 
-            // Criar usuário usando o repositório
-            const user = await this.userRepository.createUser({
-                ...userData,
-                password_hash: passwordHash,
-                active: true,
-                onboarding_completed: false,
-                settings: {
-                    notifications: {
-                        email: true,
-                        push: true
-                    },
-                    theme: 'light',
-                    language: 'pt-BR'
-                }
+            if (existingUser) {
+                return res.status(400).json({ 
+                    error: 'Este email já está em uso' 
+                });
+            }
+
+            // Cria o novo usuário
+            const newUser = await this.userRepository.createUser({
+                email,
+                password_hash: password, // Será hasheada pelo AuthService
+                ...userData
             });
 
-            // Gerar tokens
-            const accessToken = this.generateAccessToken(user);
-            const refreshToken = this.generateRefreshToken(user);
+            // Autentica o usuário para gerar os tokens
+            const { tokens } = await this.authService.authenticate(email, password);
 
-            // Log de registro
-            logger.info('Novo usuário registrado', {
-                userId: user.id,
-                email: user.email,
-                userType: user.user_type,
-                institutionId: user.institution_id,
-                requestId: res.locals.requestId
-            });
-
-            // Retornar tokens e informações do usuário
-            res.status(201).json({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                token_type: 'Bearer',
-                expires_in: 3600,
+            return res.status(201).json({
                 user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    full_name: user.full_name,
-                    user_type: user.user_type,
-                    institution_id: user.institution_id,
-                    onboarding_completed: user.onboarding_completed,
-                    settings: user.settings
-                }
+                    id: newUser.id,
+                    email: newUser.email,
+                    fullName: newUser.full_name,
+                    userType: newUser.user_type
+                },
+                ...tokens
             });
         } catch (error) {
-            if (error instanceof Error) {
-                if (error.message.includes('já está em uso')) {
-                    next(new BadRequestError(error.message));
-                } else {
-                    next(error);
-                }
-            } else {
-                next(new Error('Erro ao registrar usuário'));
-            }
+            console.error('Erro no registro:', error);
+            return res.status(500).json({ 
+                error: 'Erro ao criar usuário' 
+            });
         }
     }
 
-    /**
-     * Renovação do token de acesso
-     * @route POST /auth/refresh-token
-     */
-    async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async refreshToken(req: Request, res: Response) {
         try {
             const { refresh_token } = req.body;
-
-            // Verificar e decodificar o refresh token
-            const decoded = jwt.verify(refresh_token, config.JWT_REFRESH_SECRET) as TokenPayload;
-
-            // Buscar usuário
-            const user = await this.userRepository.findOne(decoded.id);
-            
-            if (!user || !user.active) {
-                throw new UnauthorizedError('Token inválido ou usuário inativo');
-            }
-
-            // Gerar novos tokens
-            const accessToken = this.generateAccessToken(user);
-            const newRefreshToken = this.generateRefreshToken(user);
-
-            res.json({
-                access_token: accessToken,
-                refresh_token: newRefreshToken,
-                token_type: 'Bearer',
-                expires_in: 3600
-            });
+            const tokens = await this.authService.refreshAccessToken(refresh_token);
+            return res.json(tokens);
         } catch (error) {
-            if (error instanceof jwt.JsonWebTokenError) {
-                next(new UnauthorizedError('Token inválido'));
-            } else {
-                next(error);
-            }
+            console.error('Erro ao atualizar token:', error);
+            return res.status(401).json({ 
+                error: 'Token de atualização inválido' 
+            });
         }
     }
 
-    /**
-     * Solicitação de recuperação de senha
-     * @route POST /auth/forgot-password
-     */
-    async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async forgotPassword(req: Request, res: Response) {
         try {
             const { email } = req.body;
-
-            const user = await this.userRepository.findByEmail(email);
-            
-            if (!user) {
-                // Por segurança, não informamos se o email existe ou não
-                res.json({ message: 'Se o email estiver cadastrado, você receberá as instruções de recuperação' });
-                return;
-            }
-
-            // Gerar token de recuperação
-            const resetToken = jwt.sign(
-                { id: user.id },
-                config.JWT_RESET_SECRET,
-                { expiresIn: '1h' }
-            );
-
-            // TODO: Implementar envio de email com token
-            // Por enquanto, apenas logamos o token
-            logger.info('Token de recuperação gerado', {
-                userId: user.id,
-                email: user.email,
-                resetToken,
-                requestId: res.locals.requestId
+            await this.authService.initiatePasswordReset(email);
+            return res.json({ 
+                message: 'Se o email estiver cadastrado, você receberá as instruções para redefinir sua senha' 
             });
-
-            res.json({ message: 'Se o email estiver cadastrado, você receberá as instruções de recuperação' });
         } catch (error) {
-            next(error);
+            console.error('Erro ao solicitar reset de senha:', error);
+            return res.status(500).json({ 
+                error: 'Erro ao processar solicitação de reset de senha' 
+            });
         }
     }
 
-    /**
-     * Redefinição de senha
-     * @route POST /auth/reset-password
-     */
-    async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async resetPassword(req: Request, res: Response) {
         try {
             const { token, new_password } = req.body;
-
-            // Verificar e decodificar o token
-            const decoded = jwt.verify(token, config.JWT_RESET_SECRET) as { id: string };
-
-            // Buscar usuário
-            const user = await this.userRepository.findOne(decoded.id);
-            
-            if (!user) {
-                throw new UnauthorizedError('Token inválido');
-            }
-
-            // Hash da nova senha
-            const passwordHash = await bcrypt.hash(new_password, 10);
-
-            // Atualizar senha
-            user.password_hash = passwordHash;
-            await this.userRepository.save(user);
-
-            // Log de alteração de senha
-            logger.info('Senha alterada com sucesso', {
-                userId: user.id,
-                email: user.email,
-                requestId: res.locals.requestId
+            await this.authService.resetPassword(token, new_password);
+            return res.json({ 
+                message: 'Senha atualizada com sucesso' 
             });
-
-            res.json({ message: 'Senha alterada com sucesso' });
         } catch (error) {
-            if (error instanceof jwt.JsonWebTokenError) {
-                next(new UnauthorizedError('Token inválido ou expirado'));
-            } else {
-                next(error);
-            }
+            console.error('Erro ao resetar senha:', error);
+            return res.status(400).json({ 
+                error: 'Token inválido ou expirado' 
+            });
         }
-    }
-
-    /**
-     * Gera token de acesso JWT
-     */
-    private generateAccessToken(user: any): string {
-        const payload: TokenPayload = {
-            id: user.id,
-            institution_id: user.institution_id,
-            user_type: user.user_type
-        };
-
-        return jwt.sign(payload, config.JWT_SECRET, {
-            expiresIn: config.JWT_EXPIRATION
-        });
-    }
-
-    /**
-     * Gera token de refresh JWT
-     */
-    private generateRefreshToken(user: any): string {
-        const payload: TokenPayload = {
-            id: user.id,
-            institution_id: user.institution_id,
-            user_type: user.user_type
-        };
-
-        return jwt.sign(payload, config.JWT_REFRESH_SECRET, {
-            expiresIn: '7d' // 7 dias
-        });
     }
 } 
