@@ -3,8 +3,10 @@ import bcrypt from 'bcrypt';
 import { AppDataSource } from '../data-source.js';
 import { User } from '../entities/index.js';
 import { UnauthorizedError, BadRequestError } from '../errors/index.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
 import config from '../config/env.js';
+
+const logger = createLogger('auth-service');
 
 // Tipos para os tokens
 interface TokenPayload {
@@ -32,20 +34,31 @@ export class AuthService {
      * Autentica um usuário e retorna os tokens de acesso
      */
     async authenticate(email: string, password: string): Promise<{ tokens: TokenPair; user: Partial<User> }> {
+        logger.debug('Iniciando autenticação', { email });
+
         // Busca o usuário pelo email
         const user = await this.userRepository.findOne({ where: { email } });
         if (!user) {
+            logger.warn('Tentativa de login com email não encontrado', { email });
             throw new UnauthorizedError('Credenciais inválidas');
         }
 
         // Verifica se o usuário está ativo
         if (!user.active) {
+            logger.warn('Tentativa de login com usuário inativo', { 
+                userId: user.id,
+                email: user.email 
+            });
             throw new UnauthorizedError('Usuário inativo');
         }
 
         // Verifica a senha
         const isValidPassword = await bcrypt.compare(password, user.password_hash);
         if (!isValidPassword) {
+            logger.warn('Tentativa de login com senha inválida', { 
+                userId: user.id,
+                email: user.email 
+            });
             throw new UnauthorizedError('Credenciais inválidas');
         }
 
@@ -79,6 +92,11 @@ export class AuthService {
      * Gera um novo par de tokens (access + refresh)
      */
     private async generateTokenPair(user: User): Promise<TokenPair> {
+        logger.debug('Gerando tokens para usuário', { 
+            userId: user.id,
+            email: user.email 
+        });
+
         const payload: Omit<TokenPayload, 'iat' | 'exp'> = {
             id: user.id,
             email: user.email,
@@ -94,6 +112,11 @@ export class AuthService {
         // Gera o token de atualização (7 dias)
         const refresh_token = jwt.sign(payload, config.JWT_REFRESH_SECRET, {
             expiresIn: '7d'
+        });
+
+        logger.debug('Tokens gerados com sucesso', { 
+            userId: user.id,
+            email: user.email 
         });
 
         return { access_token, refresh_token };
@@ -130,21 +153,36 @@ export class AuthService {
      * Verifica se um token de acesso é válido
      */
     async verifyAccessToken(token: string): Promise<TokenPayload> {
+        logger.debug('Verificando token de acesso');
+
         try {
             const decoded = jwt.verify(token, config.JWT_SECRET) as TokenPayload;
 
             // Verifica se o usuário ainda existe e está ativo
             const user = await this.userRepository.findOne({ where: { id: decoded.id } });
             if (!user || !user.active) {
+                logger.warn('Token válido mas usuário não encontrado ou inativo', {
+                    userId: decoded.id,
+                    email: decoded.email
+                });
                 throw new UnauthorizedError('Usuário não encontrado ou inativo');
             }
+
+            logger.debug('Token verificado com sucesso', {
+                userId: decoded.id,
+                email: decoded.email
+            });
 
             return decoded;
         } catch (error) {
             if (error instanceof jwt.TokenExpiredError) {
+                logger.warn('Token expirado');
                 throw new UnauthorizedError('Token expirado');
             }
             if (error instanceof jwt.JsonWebTokenError) {
+                logger.warn('Token inválido', {
+                    error: error.message
+                });
                 throw new UnauthorizedError('Token inválido');
             }
             throw error;
