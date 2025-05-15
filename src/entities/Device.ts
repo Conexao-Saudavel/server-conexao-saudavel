@@ -6,35 +6,35 @@ export class Device {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Column()
+    @Column({ type: "uuid" })
     user_id!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     device_name!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     device_type!: string;
 
-    @Column({ unique: true })
+    @Column({ type: "varchar", unique: true })
     serial_number!: string;
 
     @Column({ type: 'jsonb', nullable: true })
     device_info: Record<string, any> = {};
 
-    @Column({ default: true })
+    @Column({ type: "boolean", default: true })
     active: boolean = true;
 
     @Column({ type: 'timestamp', nullable: true })
     last_sync_at: Date | null = null;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: "timestamp" })
     created_at!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ type: "timestamp" })
     updated_at!: Date;
 
     // Relacionamentos
     @ManyToOne(() => User, (user: User) => user.devices)
     @JoinColumn({ name: 'user_id' })
     user!: User;
-} 
+}
