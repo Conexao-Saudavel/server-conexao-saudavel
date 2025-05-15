@@ -7,7 +7,18 @@ export function setupSwagger(app: Express): void {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
         explorer: true,
         customCss: '.swagger-ui .topbar { display: none }',
-        customSiteTitle: 'Conexão Saudável - API Documentation'
+        customSiteTitle: 'Conexão Saudável - API Documentation',
+        swaggerOptions: {
+            persistAuthorization: true,
+            docExpansion: 'list',
+            filter: true,
+            showCommonExtensions: true,
+            showExtensions: true,
+            showRequestDuration: true,
+            syntaxHighlight: {
+                theme: 'monokai'
+            }
+        }
     }));
 
     // Rota para o arquivo JSON do Swagger
