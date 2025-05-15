@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { env } from '../config/env.js';
+import env from '../config/env.js';
 
 // Formato personalizado para logs
 const customFormat = winston.format.combine(
@@ -45,17 +45,17 @@ if (env.NODE_ENV === 'production') {
   }));
 }
 
-// Integração com Sentry em produção
-if (env.NODE_ENV === 'production' && env.SENTRY_DSN) {
-  const Sentry = require('@sentry/node');
-  Sentry.init({
-    dsn: env.SENTRY_DSN,
-    environment: env.NODE_ENV,
-    tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE || 0.2,
-  });
+// // Integração com Sentry em produção
+// if (env.NODE_ENV === 'production' && env.SENTRY_DSN) {
+//   const Sentry = require('@sentry/node');
+//   Sentry.init({
+//     dsn: env.SENTRY_DSN,
+//     environment: env.NODE_ENV,
+//     tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE || 0.2,
+//   });
   
-  // Middleware para integrar logs com Sentry
-  logger.on('error', (error) => {
-    Sentry.captureException(error);
-  });
-} 
+  // // Middleware para integrar logs com Sentry
+  // logger.on('error', (error) => {
+  //   Sentry.captureException(error);
+  // });
+// } 
