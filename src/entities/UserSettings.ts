@@ -6,7 +6,7 @@ export class UserSettings {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Column()
+    @Column({ type: "uuid" })
     user_id!: string;
 
     @Column({ type: 'jsonb', nullable: true })
@@ -24,14 +24,14 @@ export class UserSettings {
     @Column({ type: 'jsonb', nullable: true })
     accessibility_settings: Record<string, any> = {};
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: "timestamp" })
     created_at!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ type: "timestamp" })
     updated_at!: Date;
 
     // Relacionamentos
     @ManyToOne(() => User, (user: User) => user.user_settings)
     @JoinColumn({ name: 'user_id' })
     user!: User;
-} 
+}
