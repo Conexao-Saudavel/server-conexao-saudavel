@@ -12,7 +12,7 @@ COPY . .
 # Configura variáveis de ambiente para produção
 ENV NODE_ENV=production
 
-# Compila o TypeScript
+# Compila o TypeScript e as migrações
 RUN npm run build
 
 # Remove dependências de desenvolvimento

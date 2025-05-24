@@ -9,8 +9,15 @@ async function startServer() {
         console.log('Banco de dados inicializado com sucesso');
 
         // Executa migrações pendentes
-        await AppDataSource.runMigrations();
-        console.log('Migrações executadas com sucesso');
+        const migrations = await AppDataSource.runMigrations();
+        if (migrations.length > 0) {
+            console.log(`Migrações executadas com sucesso: ${migrations.length} arquivos`);
+            migrations.forEach(migration => {
+                console.log(`- ${migration.name}`);
+            });
+        } else {
+            console.log('Nenhuma migração pendente');
+        }
 
         // Inicia o servidor
         const port = config.PORT;

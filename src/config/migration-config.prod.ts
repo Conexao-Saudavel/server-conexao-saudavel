@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
     synchronize: false,
     logging: false, // Desativa logs em produção
     migrations: ['dist/migrations/*.js'],
-    migrationsRun: true,
+    migrationsRun: false, // Desativa execução automática de migrações
     migrationsTableName: 'migrations',
     extra: {
         connectionTimeoutMillis: 10000,
