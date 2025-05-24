@@ -16,9 +16,9 @@ export const authSchemas = {
         password: Joi.string().min(6).required(),
         full_name: Joi.string().required(),
         date_of_birth: Joi.date().iso().required(),
-        gender: Joi.string().valid('M', 'F', 'O').required(),
-        institution_id: uuidSchema,
-        user_type: Joi.string().valid('ADOLESCENT', 'PARENT', 'PROFESSIONAL').required()
+        gender: Joi.string().valid('masculino', 'feminino', 'outro').required(),
+        institution_id: Joi.string().uuid(),
+        user_type: Joi.string().valid('independente', 'institucional', 'aluno').default('independente')
     }),
 
     refreshToken: Joi.object({
@@ -258,18 +258,15 @@ export const registerSchema = Joi.object({
 
     institution_id: Joi.string()
         .uuid()
-        .required()
         .messages({
-            'string.guid': 'ID da instituição inválido',
-            'any.required': 'O ID da instituição é obrigatório'
+            'string.guid': 'ID da instituição inválido'
         }),
 
     user_type: Joi.string()
-        .valid('adolescente', 'responsavel', 'profissional')
-        .required()
+        .valid('independente', 'institucional', 'aluno')
+        .default('independente')
         .messages({
-            'any.only': 'Tipo de usuário inválido. Use adolescente, responsavel ou profissional',
-            'any.required': 'O tipo de usuário é obrigatório'
+            'any.only': 'Tipo de usuário inválido. Use independente, institucional ou aluno'
         }),
 
     settings: Joi.object()
