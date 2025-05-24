@@ -1,0 +1,108 @@
+# Dependências
+node_modules/
+yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn.lock
+package-lock.json
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Testes
+coverage/
+.nyc_output/
+
+# IDEs e editores
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+tmp/
+temp/
+uploads/
+reports/
+pdfs/
+
+# Arquivos de cache
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Arquivos de debug
+.debug/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup
+*.bak
+*.backup
+*~
+
+# Arquivos de configuração local
+config.local.js
+config.local.json
+
+# Arquivos de banco de dados
+*.sqlite
+*.sqlite3
+*.db
+
+# Arquivos de documentação gerados
+docs/api/
+docs/coverage/
+
+# Arquivos de deploy
+deploy/
+.vercel/
+.netlify/
+
+# Arquivos de métricas e monitoramento
+metrics/
+monitoring/
+
+# Arquivos de cache do TypeScript
+*.tsbuildinfo
+
+# Arquivos de cache do Jest
+.jest-cache/
+
+# Arquivos de cache do Redis
+dump.rdb
+
+# Arquivos de cache do PostgreSQL
+*.pid
+*.pid.lock
+
+# Arquivos de cache do Sentry
+.sentryclirc
+
+# Arquivos de cache do Docker
+.docker/
+docker-compose.override.yml
+
+# Arquivos de cache do Git
+.git/
+.gitattributes
+.gitkeep 

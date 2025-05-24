@@ -1,0 +1,41 @@
+# Dependências
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Arquivos de ambiente
+.env*
+!.env.example
+
+# Arquivos de desenvolvimento
+.git
+.gitignore
+.vscode
+.idea
+*.md
+!README.md
+
+# Arquivos de build
+dist
+build
+coverage
+
+# Logs
+logs
+*.log
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de teste
+tests
+__tests__
+*.test.ts
+*.spec.ts
+
+# Arquivos temporários
+*.swp
+*.swo
+*~ 
