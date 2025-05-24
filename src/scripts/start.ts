@@ -1,29 +1,43 @@
-import { AppDataSource } from '../config/migration-config.prod.js';
-import app from '../app.js';
 import config from '../config/env.js';
+import app from '../app.js';
+import { AppDataSource } from '../config/migration-config.prod.js';
+import { CacheService } from '../services/CacheService.js';
 
 async function startServer() {
     try {
-        // Inicializa o banco de dados
+        // Inicializa o Data Source
         await AppDataSource.initialize();
-        console.log('Banco de dados inicializado com sucesso');
+        console.log('Data Source inicializado com sucesso');
 
-        // Executa migrações pendentes
-        const migrations = await AppDataSource.runMigrations();
-        if (migrations.length > 0) {
-            console.log(`Migrações executadas com sucesso: ${migrations.length} arquivos`);
-            migrations.forEach(migration => {
-                console.log(`- ${migration.name}`);
+        // Executa as migrações pendentes
+        await AppDataSource.runMigrations();
+        console.log('Migrações executadas com sucesso');
+
+        // Inicializa o serviço de cache
+        await CacheService.initialize();
+        console.log('Serviço de cache inicializado com sucesso');
+
+        // Configura o servidor
+        app.listen(process.env.PORT || 3000, () => {
+            console.log('Servidor iniciado com sucesso', {
+                context: 'server',
+                port: process.env.PORT || 3000,
+                nodeEnv: process.env.NODE_ENV,
+                host: 'localhost'
             });
-        } else {
-            console.log('Nenhuma migração pendente');
-        }
-
-        // Inicia o servidor
-        const port = config.PORT;
-        app.listen(port, () => {
-            console.log(`Servidor rodando na porta ${port}`);
         });
+
+        // Tratamento de erros do servidor
+        process.on('SIGTERM', () => {
+            console.log('Sinal SIGTERM recebido. Encerrando servidor...');
+            process.exit(0);
+        });
+
+        process.on('SIGINT', () => {
+            console.log('Sinal SIGINT recebido. Encerrando servidor...');
+            process.exit(0);
+        });
+
     } catch (error) {
         console.error('Erro ao iniciar o servidor:', error);
         process.exit(1);
