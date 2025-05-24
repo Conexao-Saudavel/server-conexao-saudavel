@@ -9,7 +9,7 @@ CREATE SCHEMA IF NOT EXISTS conexao_saudavel;
 SET search_path TO conexao_saudavel, public;
 
 -- Criar tipos enumerados
-CREATE TYPE user_type AS ENUM ('adolescente', 'responsavel', 'profissional');
+CREATE TYPE user_type AS ENUM ('independente', 'institucional', 'aluno');
 CREATE TYPE gender_type AS ENUM ('masculino', 'feminino', 'outro');
 CREATE TYPE app_category AS ENUM ('social', 'produtividade', 'entretenimento', 'educacao', 'outros');
 
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS users (
     date_of_birth DATE NOT NULL,
     gender gender_type NOT NULL,
     institution_id UUID REFERENCES institutions(id),
-    user_type user_type NOT NULL,
+    user_type user_type NOT NULL DEFAULT 'independente',
     active BOOLEAN DEFAULT true,
     onboarding_completed BOOLEAN DEFAULT false,
     settings JSONB DEFAULT '{}',
