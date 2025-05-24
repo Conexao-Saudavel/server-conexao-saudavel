@@ -16,9 +16,9 @@ RUN echo "Removendo scripts de desenvolvimento..." && \
     npm pkg delete husky && \
     echo "Scripts removidos com sucesso!"
 
-# Instala dependências com mais informações de debug
-RUN echo "Iniciando instalação de dependências..." && \
-    npm install --omit=dev --no-package-lock --ignore-scripts --verbose && \
+# Instala todas as dependências (incluindo dev) para o build
+RUN echo "Iniciando instalação de dependências para build..." && \
+    npm install --no-package-lock --ignore-scripts --verbose && \
     echo "Dependências instaladas com sucesso!"
 
 # Copia o código fonte
@@ -28,6 +28,11 @@ COPY . .
 RUN echo "Iniciando compilação do TypeScript..." && \
     npm run build && \
     echo "TypeScript compilado com sucesso!"
+
+# Remove dependências de desenvolvimento após o build
+RUN echo "Removendo dependências de desenvolvimento..." && \
+    npm prune --production && \
+    echo "Dependências de desenvolvimento removidas!"
 
 # Configura variáveis de ambiente
 ENV NODE_ENV=production
