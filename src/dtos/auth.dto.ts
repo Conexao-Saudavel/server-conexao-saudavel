@@ -6,12 +6,12 @@ import { IsEmail, IsString, IsNotEmpty, MinLength, IsEnum, IsOptional, IsDateStr
 export class LoginRequestDto {
     @IsEmail({}, { message: 'Email inválido' })
     @IsNotEmpty({ message: 'Email é obrigatório' })
-    email: string;
+    email!: string;
 
     @IsString({ message: 'Senha deve ser uma string' })
     @IsNotEmpty({ message: 'Senha é obrigatória' })
     @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
-    password: string;
+    password!: string;
 }
 
 /**
@@ -20,38 +20,38 @@ export class LoginRequestDto {
 export class RegisterRequestDto {
     @IsEmail({}, { message: 'Email inválido' })
     @IsNotEmpty({ message: 'Email é obrigatório' })
-    email: string;
+    email!: string;
 
     @IsString({ message: 'Nome de usuário deve ser uma string' })
     @IsNotEmpty({ message: 'Nome de usuário é obrigatório' })
-    username: string;
+    username!: string;
 
     @IsString({ message: 'Senha deve ser uma string' })
     @IsNotEmpty({ message: 'Senha é obrigatória' })
     @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
-    password: string;
+    password!: string;
 
     @IsString({ message: 'Nome completo deve ser uma string' })
     @IsNotEmpty({ message: 'Nome completo é obrigatório' })
-    full_name: string;
+    full_name!: string;
 
     @IsDateString({}, { message: 'Data de nascimento inválida' })
     @IsNotEmpty({ message: 'Data de nascimento é obrigatória' })
-    date_of_birth: Date;
+    date_of_birth!: Date;
 
     @IsString({ message: 'Gênero deve ser uma string' })
     @IsNotEmpty({ message: 'Gênero é obrigatório' })
     @IsEnum(['masculino', 'feminino', 'outro'], { message: 'Gênero inválido' })
-    gender: string;
+    gender!: string;
 
     @IsUUID('4', { message: 'ID da instituição inválido' })
-    @IsNotEmpty({ message: 'ID da instituição é obrigatório' })
-    institution_id: string;
+    @IsOptional()
+    institution_id?: string;
 
     @IsString({ message: 'Tipo de usuário deve ser uma string' })
     @IsNotEmpty({ message: 'Tipo de usuário é obrigatório' })
-    @IsEnum(['adolescente', 'responsavel', 'profissional'], { message: 'Tipo de usuário inválido' })
-    user_type: string;
+    @IsEnum(['independente', 'institucional', 'aluno'], { message: 'Tipo de usuário inválido' })
+    user_type: string = 'independente';
 
     @IsOptional()
     @IsString({ message: 'Configurações devem ser uma string JSON' })
@@ -63,28 +63,28 @@ export class RegisterRequestDto {
  */
 export class AuthResponseDto {
     @IsUUID('4', { message: 'ID de usuário inválido' })
-    id: string;
+    id!: string;
 
     @IsEmail({}, { message: 'Email inválido' })
-    email: string;
+    email!: string;
 
     @IsString({ message: 'Nome de usuário deve ser uma string' })
-    username: string;
+    username!: string;
 
     @IsString({ message: 'Nome completo deve ser uma string' })
-    full_name: string;
+    full_name!: string;
 
     @IsUUID('4', { message: 'ID da instituição inválido' })
-    institution_id: string;
+    institution_id!: string;
 
     @IsString({ message: 'Tipo de usuário deve ser uma string' })
-    user_type: string;
+    user_type!: string;
 
     @IsString({ message: 'Token de acesso deve ser uma string' })
-    access_token: string;
+    access_token!: string;
 
     @IsString({ message: 'Token de atualização deve ser uma string' })
-    refresh_token: string;
+    refresh_token!: string;
 
     @IsOptional()
     @IsString({ message: 'Configurações devem ser uma string JSON' })
@@ -101,7 +101,7 @@ export class AuthResponseDto {
 export class RefreshTokenRequestDto {
     @IsString({ message: 'Token de atualização deve ser uma string' })
     @IsNotEmpty({ message: 'Token de atualização é obrigatório' })
-    refresh_token: string;
+    refresh_token!: string;
 }
 
 /**
@@ -110,7 +110,7 @@ export class RefreshTokenRequestDto {
 export class ForgotPasswordRequestDto {
     @IsEmail({}, { message: 'Email inválido' })
     @IsNotEmpty({ message: 'Email é obrigatório' })
-    email: string;
+    email!: string;
 }
 
 /**
@@ -119,10 +119,10 @@ export class ForgotPasswordRequestDto {
 export class ResetPasswordRequestDto {
     @IsString({ message: 'Token deve ser uma string' })
     @IsNotEmpty({ message: 'Token é obrigatório' })
-    token: string;
+    token!: string;
 
     @IsString({ message: 'Nova senha deve ser uma string' })
     @IsNotEmpty({ message: 'Nova senha é obrigatória' })
     @MinLength(6, { message: 'Nova senha deve ter no mínimo 6 caracteres' })
-    new_password: string;
+    new_password!: string;
 } 
