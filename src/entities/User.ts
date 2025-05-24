@@ -5,9 +5,9 @@ import { AppUsage } from './AppUsage.js';
 import { DailySummary } from './DailySummary.js';
 
 export enum UserType {
-    ADOLESCENTE = 'adolescente',
-    RESPONSAVEL = 'responsavel',
-    PROFISSIONAL = 'profissional'
+    INDEPENDENTE = 'independente',
+    INSTITUCIONAL = 'institucional',
+    ALUNO = 'aluno'
 }
 
 export enum Gender {
@@ -46,8 +46,8 @@ export class User {
     })
     gender!: Gender;
 
-    @Column({ type: "uuid", name: 'institution_id' })
-    institution_id!: string;
+    @Column({ type: "uuid", name: 'institution_id', nullable: true })
+    institution_id?: string;
 
     @Column({
         name: 'user_type',
