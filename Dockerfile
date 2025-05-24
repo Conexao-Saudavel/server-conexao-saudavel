@@ -26,7 +26,12 @@ COPY . .
 
 # Compila o TypeScript com mais informações
 RUN echo "Iniciando compilação do TypeScript..." && \
-    npm run build && \
+    echo "Verificando arquivos de configuração..." && \
+    ls -la tsconfig*.json && \
+    echo "Executando build..." && \
+    npm run build --verbose && \
+    echo "Verificando resultado do build..." && \
+    ls -la dist/ && \
     echo "TypeScript compilado com sucesso!"
 
 # Remove dependências de desenvolvimento após o build
