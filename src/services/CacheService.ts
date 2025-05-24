@@ -8,12 +8,24 @@ export class CacheService {
     private defaultTTL: number;
 
     constructor(prefix = 'app:', defaultTTL = 3600) {
-        this.redis = new Redis(config.REDIS_URL);
+        this.redis = new Redis(config.REDIS_URL, {
+            retryStrategy: (times: number) => {
+                const delay = Math.min(times * 50, 2000);
+                return delay;
+            },
+            maxRetriesPerRequest: 3,
+            enableReadyCheck: true,
+            connectTimeout: 10000
+        });
         this.prefix = prefix;
         this.defaultTTL = defaultTTL;
 
         this.redis.on('error', (error: Error) => {
             logger.error('Erro na conexão com Redis:', error);
+        });
+
+        this.redis.on('connect', () => {
+            logger.info('Conexão com Redis estabelecida com sucesso');
         });
     }
 

@@ -4,16 +4,19 @@ WORKDIR /app
 
 # Instala dependências
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --only=production
 
 # Copia o código fonte
 COPY . .
 
+# Compila o TypeScript
+RUN npm run build
+
 # Configura variáveis de ambiente
-ENV NODE_ENV=development
-ENV PORT=3000
+ENV NODE_ENV=production
+ENV PORT=${PORT:-3000}
 
-EXPOSE 3000
+EXPOSE ${PORT:-3000}
 
-# Usa o script dev diretamente
-CMD ["npm", "run", "dev"] 
+# Usa o script start para produção
+CMD ["npm", "start"] 

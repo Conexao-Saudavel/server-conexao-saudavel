@@ -8,30 +8,15 @@ import { AppUsage } from './entities/AppUsage.js';
 import { DailySummary } from './entities/DailySummary.js';
 import { Seeder } from './seeds/index.js';
 
-// Ajusta o host para usar o nome do serviço Docker em ambiente de desenvolvimento
-const dbHost = config.NODE_ENV === 'development' ? 'conexao-saudavel-db' : config.DB_HOST;
-
 // Log das configurações do banco de dados
 console.log('Configurações do Banco de Dados:', {
-    host: dbHost,
-    port: config.DB_PORT,
-    username: config.DB_USERNAME,
-    password: config.DB_PASSWORD ? '******' : 'undefined',
-    database: config.DB_DATABASE,
+    databaseUrl: config.DATABASE_URL ? '******' : 'undefined',
     nodeEnv: config.NODE_ENV
 });
 
-// Log da string de conexão (sem a senha)
-const connectionString = `postgresql://${config.DB_USERNAME}@${dbHost}:${config.DB_PORT}/${config.DB_DATABASE}`;
-console.log('String de conexão (sem senha):', connectionString);
-
 export const AppDataSource = new DataSource({
     type: 'postgres',
-    host: dbHost,
-    port: config.DB_PORT,
-    username: config.DB_USERNAME,
-    password: config.DB_PASSWORD,
-    database: config.DB_DATABASE,
+    url: config.DATABASE_URL,
     synchronize: config.NODE_ENV === 'development', // Não usar em produção!
     logging: config.NODE_ENV === 'development',
     entities: [User, Institution, Device, UserSettings, AppUsage, DailySummary],
@@ -41,9 +26,7 @@ export const AppDataSource = new DataSource({
         rejectUnauthorized: false
     } : false,
     extra: {
-        // Adiciona um timeout maior para a conexão
         connectionTimeoutMillis: 10000,
-        // Adiciona um pool de conexões
         max: 20,
         idleTimeoutMillis: 30000
     }
@@ -66,13 +49,5 @@ AppDataSource.initialize()
     })
     .catch((error) => {
         console.error('Erro ao inicializar Data Source:', error);
-        // Log mais detalhado do erro
-        if (error.code === '28P01') {
-            console.error('Erro de autenticação. Verifique se as credenciais estão corretas:');
-            console.error('- Usuário:', config.DB_USERNAME);
-            console.error('- Banco:', config.DB_DATABASE);
-            console.error('- Host:', dbHost);
-            console.error('- Porta:', config.DB_PORT);
-        }
         process.exit(1);
     }); 
