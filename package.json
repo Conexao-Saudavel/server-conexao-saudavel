@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/app.js",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node dist/scripts/start.js",
     "dev": "tsx watch src/app.ts",
     "build": "tsc --project tsconfig.build.json && npm run copy:migrations",
     "copy:migrations": "cp -r src/migrations dist/",

@@ -8,30 +8,15 @@ const __dirname = path.dirname(__filename);
 
 // Carrega variáveis de ambiente apropriadas
 const env = process.env.NODE_ENV || 'development';
-const envPath = process.env.NODE_ENV === 'production' 
-  ? '/app/.env.production' 
-  : path.resolve(process.cwd(), '.env.development');
 
-console.log('Inicializando configurações:', {
-    envPath,
-    nodeEnv: env
-});
+// Em produção, não carregamos arquivo .env
+if (env !== 'production') {
+    const envPath = path.resolve(process.cwd(), '.env.development');
+    console.log('Carregando variáveis de ambiente de:', envPath);
+    dotenv.config({ path: envPath });
+}
 
-console.log('Carregando variáveis de ambiente de:', envPath);
 console.log('NODE_ENV:', env);
-
-dotenv.config({
-    path: envPath
-});
-
-// Log das variáveis de ambiente do banco de dados
-console.log('Configurações do banco de dados carregadas:', {
-    DB_HOST: process.env.DB_HOST,
-    DB_PORT: process.env.DB_PORT,
-    DB_USERNAME: process.env.DB_USERNAME,
-    DB_PASSWORD: process.env.DB_PASSWORD ? '******' : 'undefined',
-    DB_DATABASE: process.env.DB_DATABASE
-});
 
 // Tipo para as configurações
 interface Config {
@@ -89,7 +74,7 @@ const config: Config = {
     HOST: process.env.HOST || 'localhost',
    
     // Banco de dados
-    DATABASE_URL: process.env.DATABASE_URL || `postgresql://${process.env.DB_USERNAME || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_DATABASE || 'conexao_saudavel'}`,
+    DATABASE_URL: process.env.DATABASE_URL || '',
     DB_HOST: process.env.DB_HOST || 'localhost',
     DB_PORT: parseInt(process.env.DB_PORT || '5432', 10),
     DB_USERNAME: process.env.DB_USERNAME || 'postgres',
@@ -105,7 +90,7 @@ const config: Config = {
     JWT_RESET_EXPIRATION: process.env.JWT_RESET_EXPIRATION || '1h',
    
     // Redis (para cache e rate limiting)
-    REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
+    REDIS_URL: process.env.REDIS_URL || '',
    
     // Filas
     QUEUE_URL: process.env.QUEUE_URL,
@@ -129,21 +114,27 @@ const config: Config = {
     ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
 };
 
-console.log('NODE_ENV:', config.NODE_ENV);
-console.log('Configurações do banco de dados carregadas:', {
-    DB_HOST: config.DB_HOST,
-    DB_PORT: config.DB_PORT,
-    DB_USERNAME: config.DB_USERNAME,
-    DB_PASSWORD: config.DB_PASSWORD ? '******' : undefined,
-    DB_DATABASE: config.DB_DATABASE
-});
-console.log('Configurações do Banco de Dados:', {
+// Validação de configurações críticas em produção
+if (env === 'production') {
+    if (!config.DATABASE_URL) {
+        throw new Error('DATABASE_URL é obrigatório em produção');
+    }
+    if (!config.REDIS_URL) {
+        throw new Error('REDIS_URL é obrigatório em produção');
+    }
+    if (!config.JWT_SECRET || config.JWT_SECRET === 'your-secret-key') {
+        throw new Error('JWT_SECRET é obrigatório em produção');
+    }
+}
+
+// Log das configurações (sem expor dados sensíveis)
+console.log('Configurações do ambiente:', {
+    nodeEnv: config.NODE_ENV,
+    port: config.PORT,
     databaseUrl: config.DATABASE_URL ? '******' : undefined,
-    nodeEnv: config.NODE_ENV,
-});
-console.log('Configurações do Redis:', {
     redisUrl: config.REDIS_URL ? '******' : undefined,
-    nodeEnv: config.NODE_ENV,
+    logLevel: config.LOG_LEVEL,
+    logFormat: config.LOG_FORMAT
 });
 
 export default config;

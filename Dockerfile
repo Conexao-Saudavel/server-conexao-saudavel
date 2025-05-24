@@ -2,22 +2,23 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copia package.json e instala todas as dependências (incluindo dev) para o build
+# Instala dependências de build
 COPY package*.json ./
 RUN npm install
 
 # Copia o código fonte
 COPY . .
 
-# Compila o TypeScript e executa as migrações
-RUN npm run build && \
-    npm run migration:run:prod
+# Configura variáveis de ambiente para produção
+ENV NODE_ENV=production
 
-# Remove dependências de desenvolvimento após o build
+# Compila o TypeScript
+RUN npm run build
+
+# Remove dependências de desenvolvimento
 RUN npm prune --production
 
 # Configura variáveis de ambiente
-ENV NODE_ENV=production
 ENV PORT=${PORT:-3000}
 
 # Expõe a porta
