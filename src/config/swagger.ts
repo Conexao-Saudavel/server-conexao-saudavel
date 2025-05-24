@@ -46,7 +46,7 @@ const options: swaggerJsdoc.Options = {
                 },
                 UserType: {
                     type: 'string',
-                    enum: ['adolescente', 'responsavel', 'profissional'],
+                    enum: ['independente', 'institucional', 'aluno'],
                     description: 'Tipo de usuário no sistema'
                 },
                 Gender: {
@@ -93,14 +93,15 @@ const options: swaggerJsdoc.Options = {
                         },
                         user_type: {
                             type: 'string',
-                            enum: ['adolescente', 'responsavel', 'profissional'],
-                            description: 'Tipo de usuário (adolescente - Adolescente, responsavel - Responsável, profissional - Profissional)',
-                            example: 'adolescente'
+                            enum: ['independente', 'institucional', 'aluno'],
+                            description: 'Tipo de usuário (independente - Usuário independente, institucional - Usuário institucional, aluno - Aluno)',
+                            example: 'independente'
                         },
                         institution_id: {
                             type: 'string',
                             format: 'uuid',
-                            description: 'ID da instituição do usuário'
+                            description: 'ID da instituição do usuário (opcional)',
+                            nullable: true
                         },
                         active: {
                             type: 'boolean',
@@ -129,13 +130,13 @@ const options: swaggerJsdoc.Options = {
                 },
                 RegisterRequest: {
                     type: 'object',
-                    required: ['email', 'username', 'password', 'confirm_password', 'full_name', 'date_of_birth', 'gender', 'institution_id', 'user_type'],
+                    required: ['email', 'username', 'password', 'confirm_password', 'full_name', 'date_of_birth', 'gender'],
                     properties: {
                         email: {
                             type: 'string',
                             format: 'email',
                             description: 'Email do usuário',
-                            example: 'joao@escolasaopaulo.edu.br'
+                            example: 'joao@exemplo.com'
                         },
                         username: {
                             type: 'string',
@@ -143,7 +144,7 @@ const options: swaggerJsdoc.Options = {
                             minLength: 3,
                             maxLength: 30,
                             pattern: '^[a-zA-Z0-9_]+$',
-                            example: 'professor.joao'
+                            example: 'joao_silva'
                         },
                         password: {
                             type: 'string',
@@ -170,7 +171,7 @@ const options: swaggerJsdoc.Options = {
                             type: 'string',
                             format: 'date',
                             description: 'Data de nascimento (não pode ser futura)',
-                            example: '1980-01-01'
+                            example: '1990-01-01'
                         },
                         gender: {
                             type: 'string',
@@ -181,20 +182,28 @@ const options: swaggerJsdoc.Options = {
                         institution_id: {
                             type: 'string',
                             format: 'uuid',
-                            description: 'ID da instituição do usuário',
-                            example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                            description: 'ID da instituição (opcional - pode ser associado posteriormente)',
+                            example: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                            nullable: true
                         },
                         user_type: {
                             type: 'string',
-                            enum: ['adolescente', 'responsavel', 'profissional'],
-                            description: 'Tipo de usuário (adolescente - Adolescente, responsavel - Responsável, profissional - Profissional)',
-                            example: 'profissional'
+                            enum: ['independente', 'institucional', 'aluno'],
+                            description: 'Tipo de usuário (independente - Usuário independente, institucional - Usuário institucional, aluno - Aluno). Por padrão será "independente" se não especificado.',
+                            example: 'independente',
+                            default: 'independente'
                         },
                         settings: {
                             type: 'object',
                             description: 'Configurações opcionais do usuário',
                             default: {},
-                            example: {}
+                            example: {
+                                notifications: {
+                                    email: true,
+                                    push: true
+                                },
+                                theme: 'light'
+                            }
                         }
                     }
                 },
@@ -300,6 +309,73 @@ const options: swaggerJsdoc.Options = {
                             type: 'string',
                             format: 'date-time',
                             description: 'Data da última atualização da instituição'
+                        }
+                    }
+                }
+            },
+            paths: {
+                '/auth/register': {
+                    post: {
+                        tags: ['Autenticação'],
+                        summary: 'Registrar novo usuário',
+                        description: 'Endpoint para registro de novos usuários. Por padrão, os usuários são registrados como "independente" e podem ser associados a uma instituição posteriormente.',
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        $ref: '#/components/schemas/RegisterRequest'
+                                    },
+                                    examples: {
+                                        'Usuario Independente': {
+                                            value: {
+                                                email: 'joao@exemplo.com',
+                                                username: 'joao_silva',
+                                                password: 'Senha@123',
+                                                confirm_password: 'Senha@123',
+                                                full_name: 'João Silva',
+                                                date_of_birth: '1990-01-01',
+                                                gender: 'masculino'
+                                            }
+                                        },
+                                        'Usuario com Instituição': {
+                                            value: {
+                                                email: 'maria@escola.edu.br',
+                                                username: 'maria_aluno',
+                                                password: 'Senha@123',
+                                                confirm_password: 'Senha@123',
+                                                full_name: 'Maria Santos',
+                                                date_of_birth: '2005-05-15',
+                                                gender: 'feminino',
+                                                institution_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                                                user_type: 'aluno'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            '201': {
+                                description: 'Usuário registrado com sucesso',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/AuthResponse'
+                                        }
+                                    }
+                                }
+                            },
+                            '400': {
+                                description: 'Dados inválidos',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/Error'
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
