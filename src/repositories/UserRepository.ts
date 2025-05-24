@@ -19,20 +19,19 @@ import { DailySummary } from '../entities/DailySummary.js';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-    private cacheService: CacheService;
+    private static readonly CACHE_PREFIX = 'user:';
 
     constructor() {
         super(User, AppDataSource.manager);
-        this.cacheService = new CacheService('user:');
     }
 
     /**
      * Busca um usuário pelo email com cache
      */
     async findByEmail(email: string): Promise<User | null> {
-        const cacheKey = `user:email:${email}`;
+        const cacheKey = `${UserRepository.CACHE_PREFIX}email:${email}`;
         
-        return this.cacheService.getOrSet(cacheKey, async () => {
+        return CacheService.getOrSet(cacheKey, async () => {
             const user = await this.findOne({
                 where: { email },
                 relations: ['institution', 'devices', 'user_settings']
@@ -169,9 +168,9 @@ export class UserRepository extends Repository<User> {
      * Busca estatísticas de uso de um usuário com cache
      */
     async getUserWithUsageStats(userId: string): Promise<UserWithStats> {
-        const cacheKey = `user:stats:${userId}`;
+        const cacheKey = `${UserRepository.CACHE_PREFIX}stats:${userId}`;
         
-        return this.cacheService.getOrSet(cacheKey, async () => {
+        return CacheService.getOrSet(cacheKey, async () => {
             const user = await this.findOne({
                 where: { id: userId },
                 relations: ['app_usages', 'daily_summaries']
@@ -321,44 +320,36 @@ export class UserRepository extends Repository<User> {
         const savedUser = await this.save(user);
 
         // Invalidar cache
-        await this.cacheService.invalidatePattern('user:*');
+        await CacheService.invalidatePattern(`${UserRepository.CACHE_PREFIX}*`);
 
         return savedUser;
     }
 
     /**
-     * Atualiza um usuário com validações
+     * Atualiza um usuário
      */
-    async updateUser(userId: string, updateData: Partial<User>): Promise<User> {
+    async updateUser(userId: string, updateData: Partial<User & { password?: string }>): Promise<User> {
         const user = await this.findOne({ where: { id: userId } });
         if (!user) {
             throw new NotFoundError('Usuário não encontrado');
         }
 
-        // Verificar email duplicado
-        if (updateData.email && updateData.email !== user.email) {
-            const existingUser = await this.findByEmail(updateData.email);
-            if (existingUser) {
-                throw new BadRequestError('Email já cadastrado');
-            }
+        // Se a senha foi atualizada, faz o hash
+        if (updateData.password) {
+            await user.setPassword(updateData.password);
+            delete updateData.password;
         }
 
-        // Verificar username duplicado
-        if (updateData.username && updateData.username !== user.username) {
-            const existingUsername = await this.findOne({ where: { username: updateData.username } });
-            if (existingUsername) {
-                throw new BadRequestError('Nome de usuário já cadastrado');
-            }
-        }
-
-        // Atualizar usuário
+        // Atualiza os campos
         Object.assign(user, updateData);
-        const updatedUser = await this.save(user);
 
-        // Invalidar cache
-        await this.cacheService.invalidatePattern('user:*');
+        // Salva as alterações
+        await this.save(user);
 
-        return updatedUser;
+        // Invalida o cache
+        await CacheService.invalidatePattern(`${UserRepository.CACHE_PREFIX}*`);
+
+        return user;
     }
 
     /**
@@ -373,8 +364,8 @@ export class UserRepository extends Repository<User> {
         user.active = false;
         await this.save(user);
 
-        // Invalidar cache
-        await this.cacheService.invalidatePattern('user:*');
+        // Invalida o cache
+        await CacheService.invalidatePattern(`${UserRepository.CACHE_PREFIX}*`);
     }
 
     /**
