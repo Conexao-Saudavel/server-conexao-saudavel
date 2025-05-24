@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node dist/app.js",
     "dev": "tsx watch src/app.ts",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsc --project tsconfig.build.json && npm run copy:migrations",
+    "copy:migrations": "cp -r src/migrations dist/",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",

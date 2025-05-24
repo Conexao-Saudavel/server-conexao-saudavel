@@ -8,7 +8,9 @@ const __dirname = path.dirname(__filename);
 
 // Carrega variáveis de ambiente apropriadas
 const env = process.env.NODE_ENV || 'development';
-const envPath = path.resolve(__dirname, `../../.env.${env}`);
+const envPath = process.env.NODE_ENV === 'production' 
+  ? '/app/.env.production' 
+  : path.resolve(process.cwd(), '.env.development');
 
 console.log('Inicializando configurações:', {
     envPath,
@@ -36,6 +38,7 @@ interface Config {
     // Servidor
     PORT: number;
     NODE_ENV: string;
+    HOST: string;
    
     // Banco de dados
     DATABASE_URL: string;
@@ -83,6 +86,7 @@ const config: Config = {
     // Servidor
     PORT: parseInt(process.env.PORT || '3000', 10),
     NODE_ENV: env,
+    HOST: process.env.HOST || 'localhost',
    
     // Banco de dados
     DATABASE_URL: process.env.DATABASE_URL || `postgresql://${process.env.DB_USERNAME || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_DATABASE || 'conexao_saudavel'}`,
@@ -93,11 +97,11 @@ const config: Config = {
     DB_DATABASE: process.env.DB_DATABASE || 'conexao_saudavel',
    
     // Autenticação
-    JWT_SECRET: process.env.JWT_SECRET || 'default-dev-secret',
-    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'default-refresh-secret',
+    JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key',
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
     JWT_RESET_SECRET: process.env.JWT_RESET_SECRET || 'default-reset-secret',
-    JWT_EXPIRATION: process.env.JWT_EXPIRATION || '1h',
-    JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRATION || '7d',
+    JWT_EXPIRATION: process.env.JWT_EXPIRES_IN || '1d',
+    JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     JWT_RESET_EXPIRATION: process.env.JWT_RESET_EXPIRATION || '1h',
    
     // Redis (para cache e rate limiting)
@@ -124,5 +128,18 @@ const config: Config = {
     // CORS
     ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
 };
+
+console.log('NODE_ENV:', config.NODE_ENV);
+console.log('Configurações do banco de dados carregadas:', {
+    DB_HOST: config.DB_HOST,
+    DB_PORT: config.DB_PORT,
+    DB_USERNAME: config.DB_USERNAME,
+    DB_PASSWORD: config.DB_PASSWORD ? '******' : undefined,
+    DB_DATABASE: config.DB_DATABASE
+});
+console.log('Configurações do Banco de Dados:', {
+    databaseUrl: config.DATABASE_URL ? '******' : undefined,
+    nodeEnv: config.NODE_ENV,
+});
 
 export default config;
