@@ -79,38 +79,48 @@ export class Seeder {
 
         const users = [
             {
-                username: 'professor.joao',
-                email: 'joao@escolasaopaulo.edu.br',
+                username: 'joao.silva',
+                email: 'joao@exemplo.com',
                 password: 'Senha@123',
                 full_name: 'João Silva',
                 date_of_birth: new Date('1980-01-01'),
                 gender: Gender.MASCULINO,
-                institution_id: institutions[0].id,
-                user_type: UserType.PROFISSIONAL,
+                user_type: UserType.INDEPENDENTE,
                 active: true,
                 onboarding_completed: true
             },
             {
-                username: 'aluno.maria',
-                email: 'maria@escolasaopaulo.edu.br',
-                password: 'senha123',
+                username: 'maria.santos',
+                email: 'maria@exemplo.com',
+                password: 'Senha@123',
                 full_name: 'Maria Santos',
                 date_of_birth: new Date('2005-05-15'),
                 gender: Gender.FEMININO,
-                institution_id: institutions[0].id,
-                user_type: UserType.ADOLESCENTE,
+                user_type: UserType.INDEPENDENTE,
                 active: true,
                 onboarding_completed: true
             },
             {
-                username: 'responsavel.pedro',
-                email: 'pedro@escolasaopaulo.edu.br',
-                password: 'senha123',
-                full_name: 'Pedro Oliveira',
-                date_of_birth: new Date('1975-03-20'),
+                username: 'escola.sp',
+                email: 'admin@escolasaopaulo.edu.br',
+                password: 'Senha@123',
+                full_name: 'Administrador Escola SP',
+                date_of_birth: new Date('1990-01-01'),
+                gender: Gender.OUTRO,
+                institution_id: institutions[0].id,
+                user_type: UserType.INSTITUCIONAL,
+                active: true,
+                onboarding_completed: true
+            },
+            {
+                username: 'aluno.escola',
+                email: 'aluno@escolasaopaulo.edu.br',
+                password: 'Senha@123',
+                full_name: 'Aluno Escola SP',
+                date_of_birth: new Date('2005-01-01'),
                 gender: Gender.MASCULINO,
                 institution_id: institutions[0].id,
-                user_type: UserType.RESPONSAVEL,
+                user_type: UserType.ALUNO,
                 active: true,
                 onboarding_completed: true
             }
