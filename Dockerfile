@@ -2,52 +2,23 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instala dependências
+# Instala dependências de produção
 COPY package*.json ./
-
-# Configura npm para mostrar mais informações
-ENV NPM_CONFIG_LOGLEVEL=verbose
-ENV NPM_CONFIG_PROGRESS=true
-
-# Remove scripts de desenvolvimento e husky
-RUN echo "Removendo scripts de desenvolvimento..." && \
-    npm pkg delete scripts.prepare && \
-    npm pkg delete scripts.husky && \
-    npm pkg delete husky && \
-    echo "Scripts removidos com sucesso!"
-
-# Instala todas as dependências (incluindo dev) para o build
-RUN echo "Iniciando instalação de dependências para build..." && \
-    npm install --no-package-lock --ignore-scripts --verbose && \
-    echo "Dependências instaladas com sucesso!"
+RUN npm ci --only=production
 
 # Copia o código fonte
 COPY . .
 
-# Compila o TypeScript com mais informações
-RUN echo "Iniciando compilação do TypeScript..." && \
-    echo "Verificando arquivos de configuração..." && \
-    ls -la tsconfig*.json && \
-    echo "Executando build..." && \
-    npm run build --verbose && \
-    echo "Verificando resultado do build..." && \
-    ls -la dist/ && \
-    echo "TypeScript compilado com sucesso!"
-
-# Remove dependências de desenvolvimento após o build
-RUN echo "Removendo dependências de desenvolvimento..." && \
-    npm prune --production && \
-    echo "Dependências de desenvolvimento removidas!"
+# Compila o TypeScript e executa as migrações
+RUN npm run build && \
+    npm run migration:run:prod
 
 # Configura variáveis de ambiente
 ENV NODE_ENV=production
 ENV PORT=${PORT:-3000}
 
-# Configura logs mais detalhados
-ENV LOG_LEVEL=debug
-ENV LOG_FORMAT=json
-
+# Expõe a porta
 EXPOSE ${PORT:-3000}
 
-# Usa o script start para produção
+# Comando para iniciar a aplicação
 CMD ["npm", "start"] 

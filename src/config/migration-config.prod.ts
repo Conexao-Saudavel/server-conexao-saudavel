@@ -13,5 +13,20 @@ export const AppDataSource = new DataSource({
     logging: config.NODE_ENV === 'development',
     migrations: ['dist/migrations/*.js'],
     migrationsRun: true,
-    migrationsTableName: 'migrations'
-}); 
+    migrationsTableName: 'migrations',
+    extra: {
+        connectionTimeoutMillis: 10000,
+        max: 20,
+        idleTimeoutMillis: 30000
+    }
+});
+
+// Inicializa o DataSource
+AppDataSource.initialize()
+    .then(() => {
+        console.log('Data Source inicializado com sucesso');
+    })
+    .catch((error) => {
+        console.error('Erro ao inicializar Data Source:', error);
+        process.exit(1);
+    }); 

@@ -141,5 +141,9 @@ console.log('Configurações do Banco de Dados:', {
     databaseUrl: config.DATABASE_URL ? '******' : undefined,
     nodeEnv: config.NODE_ENV,
 });
+console.log('Configurações do Redis:', {
+    redisUrl: config.REDIS_URL ? '******' : undefined,
+    nodeEnv: config.NODE_ENV,
+});
 
 export default config;
