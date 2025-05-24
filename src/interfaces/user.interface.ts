@@ -15,7 +15,7 @@ export interface PaginatedResult<T> {
 
 export interface UserFilters extends PaginationOptions {
     active?: boolean;
-    userType?: 'adolescente' | 'responsavel' | 'profissional';
+    userType?: 'independente' | 'institucional' | 'aluno';
     institutionId?: string;
     searchTerm?: string;
     gender?: 'masculino' | 'feminino' | 'outro';
@@ -65,8 +65,8 @@ export interface UserWithStats {
         email: string;
         username: string;
         full_name: string;
-        user_type: 'adolescente' | 'responsavel' | 'profissional';
-        institution_id: string;
+        user_type: 'independente' | 'institucional' | 'aluno';
+        institution_id?: string;
         active: boolean;
         onboarding_completed: boolean;
         settings?: Record<string, any>;
