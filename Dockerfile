@@ -2,9 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instala dependências de produção
+# Instala dependências de produção e TypeScript
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install --omit=dev && \
+    npm install -g typescript
 
 # Copia o código fonte
 COPY . .
