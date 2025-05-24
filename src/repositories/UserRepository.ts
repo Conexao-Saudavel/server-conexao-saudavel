@@ -291,8 +291,8 @@ export class UserRepository extends Repository<User> {
         full_name: string;
         date_of_birth: Date;
         gender: Gender;
-        institution_id: string;
-        user_type: UserType;
+        institution_id?: string;
+        user_type?: UserType;
         settings?: Record<string, any>;
     }): Promise<User> {
         // Verificar se email já existe
@@ -310,6 +310,7 @@ export class UserRepository extends Repository<User> {
         // Criar usuário
         const user = this.create({
             ...userData,
+            user_type: userData.user_type || UserType.INDEPENDENTE,
             password_hash: await bcrypt.hash(userData.password, 10),
             active: true,
             onboarding_completed: false,
