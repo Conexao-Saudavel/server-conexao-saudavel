@@ -227,3 +227,183 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ---
 
 Desenvolvido com ❤️ pela Equipe Conexão Saudável 
+
+## 🚀 Release 0.1
+
+A primeira release do projeto inclui as seguintes funcionalidades:
+
+- ✅ Registro de usuários
+- ✅ Login e autenticação
+- ✅ Validação de dados
+- ✅ Rate limiting
+- ✅ Cache com Redis
+- ✅ Documentação Swagger
+
+## 🛠️ Tecnologias
+
+- Node.js
+- TypeScript
+- Express
+- TypeORM
+- PostgreSQL
+- Redis
+- JWT
+- Docker
+- Railway (Deploy)
+
+## 📋 Pré-requisitos
+
+- Node.js >= 18.0.0
+- npm >= 8.0.0
+- Docker (opcional, para desenvolvimento local)
+- PostgreSQL (opcional, para desenvolvimento local)
+- Redis (opcional, para desenvolvimento local)
+
+## 🔧 Instalação
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/conexao-saudavel-server.git
+cd conexao-saudavel-server
+```
+
+2. Instale as dependências:
+```bash
+npm install
+```
+
+3. Configure as variáveis de ambiente:
+```bash
+cp .env.example .env.development
+```
+
+4. Configure as variáveis no arquivo `.env.development`
+
+## 🚀 Executando o projeto
+
+### Desenvolvimento Local
+
+1. Inicie os containers Docker:
+```bash
+docker-compose up -d
+```
+
+2. Execute as migrações:
+```bash
+npm run migration:run
+```
+
+3. Inicie o servidor em modo desenvolvimento:
+```bash
+npm run dev
+```
+
+### Produção (Railway)
+
+O projeto está configurado para deploy automático no Railway. Para fazer o deploy:
+
+1. Crie um projeto no Railway
+2. Adicione os plugins:
+   - PostgreSQL
+   - Redis
+3. Configure as variáveis de ambiente:
+   ```env
+   NODE_ENV=production
+   JWT_SECRET=seu-segredo-jwt
+   JWT_REFRESH_SECRET=seu-segredo-refresh
+   JWT_RESET_SECRET=seu-segredo-reset
+   ALLOWED_ORIGINS=https://seu-frontend.com
+   ```
+
+## 📚 Documentação da API
+
+A documentação da API está disponível via Swagger UI:
+
+- Desenvolvimento: `http://localhost:3000/api/docs`
+- Produção: `https://seu-dominio.com/api/docs`
+
+## 🔐 Autenticação
+
+A API usa JWT (JSON Web Tokens) para autenticação. Os endpoints disponíveis são:
+
+- `POST /api/auth/register` - Registro de usuário
+- `POST /api/auth/login` - Login
+- `POST /api/auth/refresh-token` - Renovação do token
+- `POST /api/auth/forgot-password` - Recuperação de senha
+- `POST /api/auth/reset-password` - Redefinição de senha
+
+## 🛡️ Segurança
+
+- Rate limiting para prevenir abusos
+- Validação de dados com Joi
+- Sanitização de inputs
+- Headers de segurança com Helmet
+- CORS configurado
+- SSL/TLS em produção
+
+## 📦 Estrutura do Projeto
+
+```
+src/
+├── config/         # Configurações
+├── controllers/    # Controladores
+├── entities/       # Entidades TypeORM
+├── middlewares/    # Middlewares
+├── migrations/     # Migrações do banco
+├── repositories/   # Repositórios
+├── routes/         # Rotas
+├── services/       # Serviços
+├── utils/          # Utilitários
+└── validations/    # Validações
+```
+
+## 🧪 Testes
+
+```bash
+# Executa todos os testes
+npm test
+
+# Testes unitários
+npm run test:unit
+
+# Testes de integração
+npm run test:integration
+
+# Testes e2e
+npm run test:e2e
+
+# Cobertura de testes
+npm run test:coverage
+```
+
+## 📝 Scripts Disponíveis
+
+- `npm start` - Inicia o servidor em produção
+- `npm run dev` - Inicia o servidor em desenvolvimento
+- `npm run build` - Compila o TypeScript
+- `npm run lint` - Executa o linter
+- `npm run format` - Formata o código
+- `npm run migration:generate` - Gera migrações
+- `npm run migration:run` - Executa migrações
+- `npm run seed` - Popula o banco com dados de teste
+
+## 🤝 Contribuindo
+
+1. Faça o fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'feat: add some amazing feature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## ✨ Próximas Features
+
+- [ ] Perfil do usuário
+- [ ] Gestão de dispositivos
+- [ ] Monitoramento de uso
+- [ ] Relatórios e análises
+- [ ] Notificações
+- [ ] Integração com escolas 
