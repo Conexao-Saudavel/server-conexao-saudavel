@@ -12,7 +12,9 @@ const redis = new Redis(config.REDIS_URL, {
         const delay = Math.min(times * 50, 2000);
         return delay;
     },
-    maxRetriesPerRequest: 3
+    maxRetriesPerRequest: 3,
+    enableReadyCheck: true,
+    connectTimeout: 10000
 });
 
 // Tratamento de erros do Redis
@@ -21,6 +23,10 @@ redis.on('error', (error: Error) => {
         error: error.message,
         stack: error.stack
     });
+});
+
+redis.on('connect', () => {
+    logger.info('Conexão com Redis estabelecida com sucesso');
 });
 
 // Tipo para o gerador de chaves
