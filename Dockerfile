@@ -9,6 +9,13 @@ COPY package*.json ./
 ENV NPM_CONFIG_LOGLEVEL=verbose
 ENV NPM_CONFIG_PROGRESS=true
 
+# Remove scripts de desenvolvimento e husky
+RUN echo "Removendo scripts de desenvolvimento..." && \
+    npm pkg delete scripts.prepare && \
+    npm pkg delete scripts.husky && \
+    npm pkg delete husky && \
+    echo "Scripts removidos com sucesso!"
+
 # Instala dependências com mais informações de debug
 RUN echo "Iniciando instalação de dependências..." && \
     npm install --omit=dev --no-package-lock --ignore-scripts --verbose && \
