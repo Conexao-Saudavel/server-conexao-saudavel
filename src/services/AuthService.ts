@@ -12,7 +12,7 @@ const logger = createLogger('auth-service');
 interface TokenPayload {
     id: string;
     email: string;
-    institution_id: string;
+    institution_id?: string;
     user_type: string;
     iat: number;
     exp: number;
@@ -100,9 +100,13 @@ export class AuthService {
         const payload: Omit<TokenPayload, 'iat' | 'exp'> = {
             id: user.id,
             email: user.email,
-            institution_id: user.institution_id,
             user_type: user.user_type
         };
+
+        // Adiciona institution_id apenas se existir
+        if (user.institution_id) {
+            payload.institution_id = user.institution_id;
+        }
 
         // Gera o token de acesso (1 hora)
         const access_token = jwt.sign(payload, config.JWT_SECRET, {
