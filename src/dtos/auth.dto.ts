@@ -125,4 +125,9 @@ export class ResetPasswordRequestDto {
     @IsNotEmpty({ message: 'Nova senha é obrigatória' })
     @MinLength(6, { message: 'Nova senha deve ter no mínimo 6 caracteres' })
     new_password!: string;
+
+    @IsString({ message: 'Confirmação de senha deve ser uma string' })
+    @IsNotEmpty({ message: 'Confirmação de senha é obrigatória' })
+    @MinLength(6, { message: 'Confirmação de senha deve ter no mínimo 6 caracteres' })
+    confirm_password!: string;
 } 

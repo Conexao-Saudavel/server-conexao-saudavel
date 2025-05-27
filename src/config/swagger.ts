@@ -215,7 +215,7 @@ const options: swaggerJsdoc.Options = {
                             type: 'string',
                             format: 'email',
                             description: 'Email do usuário',
-                            example: 'joao@escolasaopaulo.edu.br'
+                            example: 'joao@exemplo.com'
                         },
                         password: {
                             type: 'string',
@@ -228,8 +228,34 @@ const options: swaggerJsdoc.Options = {
                 AuthResponse: {
                     type: 'object',
                     properties: {
-                        user: {
-                            $ref: '#/components/schemas/User'
+                        id: {
+                            type: 'string',
+                            format: 'uuid',
+                            description: 'ID do usuário'
+                        },
+                        email: {
+                            type: 'string',
+                            format: 'email',
+                            description: 'Email do usuário'
+                        },
+                        username: {
+                            type: 'string',
+                            description: 'Nome de usuário'
+                        },
+                        full_name: {
+                            type: 'string',
+                            description: 'Nome completo'
+                        },
+                        user_type: {
+                            type: 'string',
+                            enum: ['independente', 'institucional', 'aluno'],
+                            description: 'Tipo de usuário'
+                        },
+                        institution_id: {
+                            type: 'string',
+                            format: 'uuid',
+                            description: 'ID da instituição',
+                            nullable: true
                         },
                         access_token: {
                             type: 'string',
@@ -238,6 +264,50 @@ const options: swaggerJsdoc.Options = {
                         refresh_token: {
                             type: 'string',
                             description: 'Token de atualização JWT'
+                        }
+                    }
+                },
+                RefreshTokenRequest: {
+                    type: 'object',
+                    required: ['refresh_token'],
+                    properties: {
+                        refresh_token: {
+                            type: 'string',
+                            description: 'Token de atualização JWT'
+                        }
+                    }
+                },
+                ForgotPasswordRequest: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                        email: {
+                            type: 'string',
+                            format: 'email',
+                            description: 'Email do usuário',
+                            example: 'joao@exemplo.com'
+                        }
+                    }
+                },
+                ResetPasswordRequest: {
+                    type: 'object',
+                    required: ['token', 'new_password', 'confirm_password'],
+                    properties: {
+                        token: {
+                            type: 'string',
+                            description: 'Token de redefinição de senha'
+                        },
+                        new_password: {
+                            type: 'string',
+                            format: 'password',
+                            description: 'Nova senha',
+                            minLength: 6
+                        },
+                        confirm_password: {
+                            type: 'string',
+                            format: 'password',
+                            description: 'Confirmação da nova senha',
+                            minLength: 6
                         }
                     }
                 },
@@ -314,43 +384,56 @@ const options: swaggerJsdoc.Options = {
                 }
             },
             paths: {
+                '/auth/login': {
+                    post: {
+                        tags: ['Autenticação'],
+                        summary: 'Autentica um usuário',
+                        description: 'Realiza o login do usuário e retorna os tokens de acesso',
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        $ref: '#/components/schemas/LoginRequest'
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            '200': {
+                                description: 'Login realizado com sucesso',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/AuthResponse'
+                                        }
+                                    }
+                                }
+                            },
+                            '401': {
+                                description: 'Credenciais inválidas',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/Error'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 '/auth/register': {
                     post: {
                         tags: ['Autenticação'],
-                        summary: 'Registrar novo usuário',
-                        description: 'Endpoint para registro de novos usuários. Por padrão, os usuários são registrados como "independente" e podem ser associados a uma instituição posteriormente.',
+                        summary: 'Registra um novo usuário',
+                        description: 'Cria uma nova conta de usuário',
                         requestBody: {
                             required: true,
                             content: {
                                 'application/json': {
                                     schema: {
                                         $ref: '#/components/schemas/RegisterRequest'
-                                    },
-                                    examples: {
-                                        'Usuario Independente': {
-                                            value: {
-                                                email: 'joao@exemplo.com',
-                                                username: 'joao_silva',
-                                                password: 'Senha@123',
-                                                confirm_password: 'Senha@123',
-                                                full_name: 'João Silva',
-                                                date_of_birth: '1990-01-01',
-                                                gender: 'masculino'
-                                            }
-                                        },
-                                        'Usuario com Instituição': {
-                                            value: {
-                                                email: 'maria@escola.edu.br',
-                                                username: 'maria_aluno',
-                                                password: 'Senha@123',
-                                                confirm_password: 'Senha@123',
-                                                full_name: 'Maria Santos',
-                                                date_of_birth: '2005-05-15',
-                                                gender: 'feminino',
-                                                institution_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                                                user_type: 'aluno'
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -368,6 +451,135 @@ const options: swaggerJsdoc.Options = {
                             },
                             '400': {
                                 description: 'Dados inválidos',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/Error'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                '/auth/refresh': {
+                    post: {
+                        tags: ['Autenticação'],
+                        summary: 'Atualiza o token de acesso',
+                        description: 'Gera um novo par de tokens usando o refresh token',
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        $ref: '#/components/schemas/RefreshTokenRequest'
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            '200': {
+                                description: 'Tokens atualizados com sucesso',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                access_token: {
+                                                    type: 'string',
+                                                    description: 'Novo token de acesso JWT'
+                                                },
+                                                refresh_token: {
+                                                    type: 'string',
+                                                    description: 'Novo token de atualização JWT'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            '401': {
+                                description: 'Token inválido',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/Error'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                '/auth/forgot-password': {
+                    post: {
+                        tags: ['Autenticação'],
+                        summary: 'Solicita recuperação de senha',
+                        description: 'Envia um email com instruções para redefinir a senha',
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        $ref: '#/components/schemas/ForgotPasswordRequest'
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            '200': {
+                                description: 'Email de recuperação enviado',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                message: {
+                                                    type: 'string',
+                                                    description: 'Mensagem de sucesso'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                '/auth/reset-password': {
+                    post: {
+                        tags: ['Autenticação'],
+                        summary: 'Redefine a senha do usuário',
+                        description: 'Atualiza a senha do usuário usando o token de redefinição',
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        $ref: '#/components/schemas/ResetPasswordRequest'
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            '200': {
+                                description: 'Senha atualizada com sucesso',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                message: {
+                                                    type: 'string',
+                                                    description: 'Mensagem de sucesso'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            '400': {
+                                description: 'Token inválido ou senhas não coincidem',
                                 content: {
                                     'application/json': {
                                         schema: {

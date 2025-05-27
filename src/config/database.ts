@@ -7,15 +7,16 @@ import { UserSettings } from '../entities/UserSettings.js';
 import { AppUsage } from '../entities/AppUsage.js';
 import { DailySummary } from '../entities/DailySummary.js';
 
-const dbHost = config.NODE_ENV === 'development' ? 'conexao-saudavel-db' : config.DB_HOST;
-
+// Configuração do banco de dados
 const dataSource = new DataSource({
     type: 'postgres',
-    host: dbHost,
-    port: config.DB_PORT,
-    username: config.DB_USERNAME,
-    password: config.DB_PASSWORD,
-    database: config.DB_DATABASE,
+    // Se DATABASE_URL estiver definida, usa ela. Caso contrário, usa as variáveis individuais
+    url: process.env.DATABASE_URL,
+    host: process.env.DATABASE_URL ? undefined : (process.env.DB_HOST || 'conexao-saudavel-db'),
+    port: process.env.DATABASE_URL ? undefined : config.DB_PORT,
+    username: process.env.DATABASE_URL ? undefined : config.DB_USERNAME,
+    password: process.env.DATABASE_URL ? undefined : config.DB_PASSWORD,
+    database: process.env.DATABASE_URL ? undefined : config.DB_DATABASE,
     synchronize: false, // Nunca usar synchronize em migrations
     logging: config.NODE_ENV === 'development',
     entities: [User, Institution, Device, UserSettings, AppUsage, DailySummary],

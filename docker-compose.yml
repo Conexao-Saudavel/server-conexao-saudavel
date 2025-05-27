@@ -61,8 +61,10 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - DB_DATABASE=conexao_saudavel_dev
+      - DATABASE_URL=postgresql://postgres:postgres@conexao-saudavel-db:5432/conexao_saudavel_dev
       - REDIS_HOST=conexao-saudavel-redis
       - REDIS_PORT=6379
+      - REDIS_URL=redis://conexao-saudavel-redis:6379
     ports:
       - "${PORT:-3000}:3000"
     volumes:

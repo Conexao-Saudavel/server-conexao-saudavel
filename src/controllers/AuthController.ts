@@ -148,7 +148,15 @@ export class AuthController {
 
     async resetPassword(req: Request, res: Response) {
         try {
-            const { token, new_password } = req.body;
+            const { token, new_password, confirm_password } = req.body;
+
+            // Verifica se as senhas coincidem
+            if (new_password !== confirm_password) {
+                return res.status(400).json({ 
+                    error: 'As senhas não coincidem' 
+                });
+            }
+
             await this.authService.resetPassword(token, new_password);
             return res.json({ 
                 message: 'Senha atualizada com sucesso' 
