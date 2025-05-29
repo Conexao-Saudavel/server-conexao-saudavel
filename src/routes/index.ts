@@ -5,7 +5,7 @@ import userRoutes from './user.routes.js';
 const router = Router();
 
 // Health check route
-router.get('/health', (req, res) => {
+router.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
