@@ -8,10 +8,12 @@ export class CreateUserSettingsTable1716490000002 implements MigrationInterface 
         await queryRunner.query(`
             CREATE TABLE user_settings (
                 id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                user_id UUID NOT NULL UNIQUE,
-                daily_usage_limit INTEGER,
+                user_id UUID NOT NULL,
                 notification_preferences JSONB DEFAULT '{}',
-                app_categories JSONB DEFAULT '{}',
+                privacy_settings JSONB DEFAULT '{}',
+                theme_preferences JSONB DEFAULT '{}',
+                language_preferences JSONB DEFAULT '{}',
+                accessibility_settings JSONB DEFAULT '{}',
                 created_at TIMESTAMP NOT NULL DEFAULT now(),
                 updated_at TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT fk_user_settings_user
@@ -23,7 +25,7 @@ export class CreateUserSettingsTable1716490000002 implements MigrationInterface 
 
         // Criar índices
         await queryRunner.query(`
-            CREATE INDEX idx_user_settings_user ON user_settings(user_id);
+            CREATE INDEX idx_user_settings_user_id ON user_settings(user_id);
         `);
 
         // Criar trigger para atualização automática de updated_at
@@ -43,10 +45,10 @@ export class CreateUserSettingsTable1716490000002 implements MigrationInterface 
 
         // Remover índices
         await queryRunner.query(`
-            DROP INDEX IF EXISTS idx_user_settings_user;
+            DROP INDEX IF EXISTS idx_user_settings_user_id;
         `);
 
         // Remover tabela
-        await queryRunner.query(`DROP TABLE user_settings;`);
+        await queryRunner.query(`DROP TABLE IF EXISTS user_settings;`);
     }
 } 
