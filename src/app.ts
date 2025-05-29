@@ -16,6 +16,14 @@ import { createLogger } from './utils/logger.js';
 const logger = createLogger('server');
 const app = express();
 
+// Log inicial
+logger.info('Iniciando configuração do servidor', {
+    nodeEnv: process.env.NODE_ENV,
+    port: process.env.PORT,
+    databaseUrl: process.env.DATABASE_URL ? 'Configurada' : 'Não configurada',
+    redisUrl: process.env.REDIS_URL ? 'Configurada' : 'Não configurada'
+});
+
 // Basic middlewares
 app.use(helmetConfig);
 app.use(corsMiddleware);
@@ -38,12 +46,23 @@ app.use(errorHandler);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  logger.info('Servidor iniciado com sucesso', {
-    port: PORT,
-    nodeEnv: process.env.NODE_ENV,
-    host: process.env.HOST || 'localhost'
-  });
+const server = app.listen(PORT, () => {
+    logger.info('Servidor iniciado com sucesso', {
+        port: PORT,
+        nodeEnv: process.env.NODE_ENV,
+        host: process.env.HOST || 'localhost'
+    });
+});
+
+// Tratamento de erros não capturados
+process.on('uncaughtException', (error) => {
+    logger.error('Erro não capturado:', error);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Promessa rejeitada não tratada:', { reason, promise });
+    process.exit(1);
 });
 
 export default app;

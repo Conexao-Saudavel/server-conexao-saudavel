@@ -6,6 +6,16 @@ import { Device } from '../entities/Device.js';
 import { UserSettings } from '../entities/UserSettings.js';
 import { AppUsage } from '../entities/AppUsage.js';
 import { DailySummary } from '../entities/DailySummary.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('database');
+
+// Log da configuração do banco de dados
+logger.info('Configurando conexão com o banco de dados', {
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+    nodeEnv: config.NODE_ENV,
+    ssl: config.NODE_ENV === 'production'
+});
 
 // Configuração do banco de dados
 const dataSource = new DataSource({
@@ -29,5 +39,15 @@ const dataSource = new DataSource({
         idleTimeoutMillis: 30000
     }
 });
+
+// Inicialização do banco de dados
+dataSource.initialize()
+    .then(() => {
+        logger.info('Conexão com o banco de dados estabelecida com sucesso');
+    })
+    .catch((error) => {
+        logger.error('Erro ao conectar com o banco de dados:', error);
+        process.exit(1);
+    });
 
 export default dataSource; 
