@@ -35,11 +35,14 @@ export class Seeder {
                 cnpj: '12345678901234',
                 email: 'contato@escolasaopaulo.edu.br',
                 phone: '11999999999',
-                address: 'Rua das Flores, 123',
-                city: 'São Paulo',
-                state: 'SP',
-                country: 'Brasil',
-                postal_code: '01234567',
+                address: {
+                    street: 'Rua das Flores',
+                    number: '123',
+                    city: 'São Paulo',
+                    state: 'SP',
+                    country: 'Brasil',
+                    postal_code: '01234567'
+                },
                 active: true
             },
             {
@@ -47,11 +50,14 @@ export class Seeder {
                 cnpj: '98765432109876',
                 email: 'contato@colegiorj.edu.br',
                 phone: '21988888888',
-                address: 'Av. Principal, 456',
-                city: 'Rio de Janeiro',
-                state: 'RJ',
-                country: 'Brasil',
-                postal_code: '20000000',
+                address: {
+                    street: 'Av. Principal',
+                    number: '456',
+                    city: 'Rio de Janeiro',
+                    state: 'RJ',
+                    country: 'Brasil',
+                    postal_code: '20000000'
+                },
                 active: true
             }
         ];
