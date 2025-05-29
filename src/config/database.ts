@@ -40,14 +40,4 @@ const dataSource = new DataSource({
     }
 });
 
-// Inicialização do banco de dados
-dataSource.initialize()
-    .then(() => {
-        logger.info('Conexão com o banco de dados estabelecida com sucesso');
-    })
-    .catch((error) => {
-        logger.error('Erro ao conectar com o banco de dados:', error);
-        process.exit(1);
-    });
-
 export default dataSource; 
