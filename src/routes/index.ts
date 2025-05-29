@@ -4,6 +4,11 @@ import userRoutes from './user.routes.js';
 
 const router = Router();
 
+// Health check route
+router.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Rotas públicas
 router.use('/auth', authRoutes);
 

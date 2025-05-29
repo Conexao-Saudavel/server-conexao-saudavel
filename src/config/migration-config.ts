@@ -1,24 +1,15 @@
 import { DataSource } from 'typeorm';
 import config from './env.js';
 
-const dbHost = config.NODE_ENV === 'development' ? 'conexao-saudavel-db' : config.DB_HOST;
+const isProduction = config.NODE_ENV === 'production';
 
 export default new DataSource({
     type: 'postgres',
-    host: dbHost,
-    port: config.DB_PORT,
-    username: config.DB_USERNAME,
-    password: config.DB_PASSWORD,
-    database: config.DB_DATABASE,
+    url: process.env.DATABASE_URL,
+    ssl: isProduction ? { rejectUnauthorized: false } : false,
+    entities: isProduction ? ['dist/entities/*.js'] : ['src/entities/*.ts'],
+    migrations: isProduction ? ['dist/migrations/*.js'] : ['src/migrations/*.ts'],
+    subscribers: isProduction ? ['dist/subscribers/*.js'] : ['src/subscribers/*.ts'],
     synchronize: false,
-    logging: config.NODE_ENV === 'development',
-    entities: ['src/entities/*.ts'],
-    migrations: ['src/migrations/*.ts'],
-    subscribers: ['src/subscribers/*.ts'],
-    ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    extra: {
-        connectionTimeoutMillis: 10000,
-        max: 20,
-        idleTimeoutMillis: 30000
-    }
+    logging: !isProduction
 }); 

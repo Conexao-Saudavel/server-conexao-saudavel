@@ -20,8 +20,8 @@ const dataSource = new DataSource({
     synchronize: false, // Nunca usar synchronize em migrations
     logging: config.NODE_ENV === 'development',
     entities: [User, Institution, Device, UserSettings, AppUsage, DailySummary],
-    migrations: ['src/migrations/*.ts'],
-    subscribers: ['src/subscribers/*.ts'],
+    migrations: [config.NODE_ENV === 'production' ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
+    subscribers: [config.NODE_ENV === 'production' ? 'dist/subscribers/*.js' : 'src/subscribers/*.ts'],
     ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     extra: {
         connectionTimeoutMillis: 10000,
