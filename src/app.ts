@@ -22,7 +22,12 @@ logger.info('Iniciando configuração do servidor', {
     nodeEnv: process.env.NODE_ENV,
     port: process.env.PORT,
     databaseUrl: process.env.DATABASE_URL ? 'Configurada' : 'Não configurada',
-    redisUrl: process.env.REDIS_URL ? 'Configurada' : 'Não configurada'
+    redisUrl: process.env.REDIS_URL ? 'Configurada' : 'Não configurada',
+    cwd: process.cwd(),
+    files: {
+        app: process.cwd() + '/dist/app.js',
+        routes: process.cwd() + '/dist/routes/index.js'
+    }
 });
 
 // Basic middlewares
@@ -50,6 +55,7 @@ async function startServer() {
     try {
         // Aguarda a conexão com o banco de dados
         if (!dataSource.isInitialized) {
+            logger.info('Iniciando conexão com o banco de dados...');
             await dataSource.initialize();
             logger.info('Conexão com o banco de dados estabelecida com sucesso');
         }
