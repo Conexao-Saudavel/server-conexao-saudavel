@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
-import { Institution, Device, UserSettings } from './index.js';
+import type { Institution, Device, UserSettings } from './index.js';
 import bcrypt from 'bcrypt';
-import { AppUsage } from './AppUsage.js';
-import { DailySummary } from './DailySummary.js';
+import type { AppUsage } from './AppUsage.js';
+import type { DailySummary } from './DailySummary.js';
 
 export enum UserType {
     INDEPENDENTE = 'independente',
@@ -80,20 +80,20 @@ export class User {
     updated_at!: Date;
 
     // Relacionamentos
-    @ManyToOne(() => Institution, institution => institution.users)
+    @ManyToOne('Institution', 'users')
     @JoinColumn({ name: 'institution_id' })
     institution!: Institution;
 
-    @OneToMany(() => Device, device => device.user)
+    @OneToMany('Device', 'user')
     devices!: Device[];
 
-    @OneToMany(() => UserSettings, settings => settings.user)
+    @OneToMany('UserSettings', 'user')
     user_settings!: UserSettings[];
 
-    @OneToMany(() => AppUsage, appUsage => appUsage.user)
+    @OneToMany('AppUsage', 'user')
     app_usages!: AppUsage[];
 
-    @OneToMany(() => DailySummary, dailySummary => dailySummary.user)
+    @OneToMany('DailySummary', 'user')
     daily_summaries!: DailySummary[];
 
     // Métodos para manipulação de senha
