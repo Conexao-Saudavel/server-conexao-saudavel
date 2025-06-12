@@ -8,27 +8,23 @@ const __dirname = path.dirname(__filename);
 
 // Carrega variáveis de ambiente apropriadas
 const env = process.env.NODE_ENV || 'development';
-const envPath = path.resolve(__dirname, `../../.env.${env}`);
+
+// Em produção, não carrega arquivo .env
+if (env !== 'production') {
+    const envPath = path.resolve(__dirname, `../../.env.${env}`);
+    console.log('Carregando variáveis de ambiente de:', envPath);
+    dotenv.config({ path: envPath });
+}
 
 console.log('Inicializando configurações:', {
-    envPath,
-    nodeEnv: env
-});
-
-console.log('Carregando variáveis de ambiente de:', envPath);
-console.log('NODE_ENV:', env);
-
-dotenv.config({
-    path: envPath
+    nodeEnv: env,
+    isProduction: env === 'production'
 });
 
 // Log das variáveis de ambiente do banco de dados
 console.log('Configurações do banco de dados carregadas:', {
-    DB_HOST: process.env.DB_HOST,
-    DB_PORT: process.env.DB_PORT,
-    DB_USERNAME: process.env.DB_USERNAME,
-    DB_PASSWORD: process.env.DB_PASSWORD ? '******' : 'undefined',
-    DB_DATABASE: process.env.DB_DATABASE
+    DATABASE_URL: process.env.DATABASE_URL ? 'Configurada' : 'Não configurada',
+    REDIS_URL: process.env.REDIS_URL ? 'Configurada' : 'Não configurada'
 });
 
 // Tipo para as configurações

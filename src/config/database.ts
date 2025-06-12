@@ -6,6 +6,16 @@ import { Device } from '../entities/Device.js';
 import { UserSettings } from '../entities/UserSettings.js';
 import { AppUsage } from '../entities/AppUsage.js';
 import { DailySummary } from '../entities/DailySummary.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('database');
+
+// Log da configuração do banco de dados
+logger.info('Configurando conexão com o banco de dados', {
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+    nodeEnv: config.NODE_ENV,
+    ssl: config.NODE_ENV === 'production'
+});
 
 // Configuração do banco de dados
 const dataSource = new DataSource({
@@ -20,8 +30,8 @@ const dataSource = new DataSource({
     synchronize: false, // Nunca usar synchronize em migrations
     logging: config.NODE_ENV === 'development',
     entities: [User, Institution, Device, UserSettings, AppUsage, DailySummary],
-    migrations: ['src/migrations/*.ts'],
-    subscribers: ['src/subscribers/*.ts'],
+    migrations: [config.NODE_ENV === 'production' ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
+    subscribers: [config.NODE_ENV === 'production' ? 'dist/subscribers/*.js' : 'src/subscribers/*.ts'],
     ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     extra: {
         connectionTimeoutMillis: 10000,

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from './index.js';
+import type { User } from './User.js';
 
 @Entity('devices')
 export class Device {
@@ -34,7 +34,7 @@ export class Device {
     updated_at!: Date;
 
     // Relacionamentos
-    @ManyToOne(() => User, (user: User) => user.devices)
+    @ManyToOne('User', 'devices')
     @JoinColumn({ name: 'user_id' })
     user!: User;
 }
