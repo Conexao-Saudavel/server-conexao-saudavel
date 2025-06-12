@@ -1,8 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 import type { Institution, Device, UserSettings } from './index.js';
 import bcrypt from 'bcrypt';
-import type { AppUsage } from './AppUsage.js';
-import type { DailySummary } from './DailySummary.js';
+import { AppUsage } from './AppUsage.js';
+import { DailySummary } from './DailySummary.js';
+import { Reflection } from './Reflection.js';
 
 export enum UserType {
     INDEPENDENTE = 'independente',
@@ -95,6 +96,9 @@ export class User {
 
     @OneToMany('DailySummary', 'user')
     daily_summaries!: DailySummary[];
+
+    @OneToMany(() => Reflection, reflection => reflection.user)
+    reflections!: Reflection[];
 
     // Métodos para manipulação de senha
     async setPassword(password: string): Promise<void> {
