@@ -3,6 +3,7 @@ import { Institution, Device, UserSettings } from './index.js';
 import bcrypt from 'bcrypt';
 import { AppUsage } from './AppUsage.js';
 import { DailySummary } from './DailySummary.js';
+import { Reflection } from './Reflection.js';
 
 export enum UserType {
     INDEPENDENTE = 'independente',
@@ -95,6 +96,9 @@ export class User {
 
     @OneToMany(() => DailySummary, dailySummary => dailySummary.user)
     daily_summaries!: DailySummary[];
+
+    @OneToMany(() => Reflection, reflection => reflection.user)
+    reflections!: Reflection[];
 
     // Métodos para manipulação de senha
     async setPassword(password: string): Promise<void> {
